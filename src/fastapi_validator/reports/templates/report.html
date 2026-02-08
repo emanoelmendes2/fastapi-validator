@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Validator Report - {{app_title}}</title>
+    <style>
+{{styles}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>FastAPI Validator Report</h1>
+            <p class="subtitle">{{app_title}}</p>
+            <p class="timestamp">Gerado em: {{timestamp}}</p>
+        </header>
+
+        <!-- Score Section -->
+        {{#if score}}
+        <section class="score-section">
+            <div class="grade-circle grade-{{grade_class}}">
+                {{grade}}
+            </div>
+            <div class="score-details">
+                <h2>Quality Score</h2>
+                <div class="score-bar">
+                    <div class="score-bar-fill" style="width: {{score}}%; background: {{score_color}};"></div>
+                </div>
+                <span class="score-value">{{score}}/100 pontos</span>
+            </div>
+        </section>
+        {{/if}}
+
+        <!-- Summary Cards -->
+        <section class="summary-grid">
+            <div class="summary-card routes">
+                <div class="value">{{routes_count}}</div>
+                <div class="label">Rotas Analisadas</div>
+            </div>
+            <div class="summary-card errors">
+                <div class="value">{{error_count}}</div>
+                <div class="label">Erros</div>
+            </div>
+            <div class="summary-card warnings">
+                <div class="value">{{warning_count}}</div>
+                <div class="label">Warnings</div>
+            </div>
+            <div class="summary-card info">
+                <div class="value">{{info_count}}</div>
+                <div class="label">Informacoes</div>
+            </div>
+        </section>
+
+        <!-- Category Breakdown -->
+        {{#if categories}}
+        <section class="categories-section">
+            <h2>Pontuacao por Categoria</h2>
+            {{#each categories}}
+            <div class="category-item">
+                <span class="category-name">{{name}}</span>
+                <div class="category-bar">
+                    <div class="category-bar-fill" style="width: {{score}}%; background: {{color}};"></div>
+                </div>
+                <span class="category-score">{{score}}%</span>
+            </div>
+            {{/each}}
+        </section>
+        {{/if}}
+
+        <!-- Issues List -->
+        <section class="issues-section">
+            <h2>Issues Encontrados ({{total_issues}})</h2>
+
+            {{#if has_issues}}
+            <div class="issue-filters">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="error">Erros</button>
+                <button class="filter-btn" data-filter="warning">Warnings</button>
+                <button class="filter-btn" data-filter="info">Info</button>
+            </div>
+
+            <div class="issues-list">
+                {{#each issues}}
+                <div class="issue-item" data-severity="{{severity}}">
+                    <div class="issue-header">
+                        <span class="severity-badge severity-{{severity}}">{{severity}}</span>
+                        <span class="issue-rule">{{rule_id}}</span>
+                    </div>
+                    <p class="issue-message">{{message}}</p>
+                    <div class="issue-meta">
+                        {{#if path}}<span>Path: <code>{{path}}</code></span>{{/if}}
+                        {{#if method}}<span>Method: <code>{{method}}</code></span>{{/if}}
+                    </div>
+                    {{#if suggestion}}
+                    <div class="issue-suggestion">{{suggestion}}</div>
+                    {{/if}}
+                </div>
+                {{/each}}
+            </div>
+            {{else}}
+            <div class="no-issues">
+                <div class="icon">✓</div>
+                <p>Nenhum issue encontrado! Sua API esta em conformidade com as boas praticas.</p>
+            </div>
+            {{/if}}
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Gerado por <a href="https://github.com/seu-usuario/fastapi-validator">FastAPI Validator</a></p>
+            <p>Versao {{version}}</p>
+        </footer>
+    </div>
+
+    <script>
+        // Filter functionality
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                document.querySelectorAll('.issue-item').forEach(item => {
+                    if (filter === 'all' || item.dataset.severity === filter) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
