@@ -1,39 +1,39 @@
 """FastAPI Validator - Uma biblioteca de validação para APIs FastAPI."""
 
-from .validators import (
-    Validator,
-    StringValidator,
-    NumberValidator,
-    EmailValidator,
-    CPFValidator,
-    CNPJValidator,
-)
-from .decorators import validate_request, validate_response
-from .exceptions import ValidationError, ValidatorException
-from .middleware import ValidationMiddleware
-from .config import ValidatorConfig, load_config
-from .openapi_analyzer import OpenAPIAnalyzer
 from .analyzer import (
-    APIAnalyzer,
     AnalysisMetrics,
     AnalysisReport,
-    Issue,
-    Rule,
-    Severity,
+    APIAnalyzer,
+    APIScore,
     # Scoring
     APIScorer,
-    APIScore,
-    Grade,
-    # Breaking Changes
-    BreakingChangesDetector,
-    BreakingChangesReport,
-    # Dependencies
-    DependencyAnalyzer,
-    DependencyAnalysisReport,
     # Auto-fix
     AutoFixer,
     AutoFixReport,
+    # Breaking Changes
+    BreakingChangesDetector,
+    BreakingChangesReport,
     CodeSuggestion,
+    DependencyAnalysisReport,
+    # Dependencies
+    DependencyAnalyzer,
+    Grade,
+    Issue,
+    Rule,
+    Severity,
+)
+from .config import ValidatorConfig, load_config
+from .decorators import validate_request, validate_response
+from .exceptions import ValidationError, ValidatorException
+from .middleware import ValidationMiddleware
+from .openapi_analyzer import OpenAPIAnalyzer
+from .validators import (
+    CNPJValidator,
+    CPFValidator,
+    EmailValidator,
+    NumberValidator,
+    StringValidator,
+    Validator,
 )
 
 __version__ = "0.1.0"

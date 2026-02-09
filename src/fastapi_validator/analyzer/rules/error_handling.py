@@ -34,7 +34,10 @@ class ErrorResponseDocumentedRule(Rule):
                         message="Endpoint não documenta respostas de erro (4xx/5xx).",
                         path=route.path,
                         method=", ".join(sorted(route.methods or set())),
-                        suggestion="Adicionar responses com códigos 4xx/5xx na definição do endpoint",
+                        suggestion=(
+                            "Adicionar responses com códigos 4xx/5xx "
+                            "na definição do endpoint"
+                        ),
                     )
                 )
 
@@ -83,12 +86,18 @@ class ErrorConsistentFormatRule(Rule):
                         issues.append(
                             self.create_issue(
                                 message=(
-                                    f"Modelo de erro com campos {list(fields)} difere "
+                                    f"Modelo de erro com campos "
+                                    f"{list(fields)} difere "
                                     f"dos modelos anteriores."
                                 ),
                                 path=route.path,
-                                method=", ".join(sorted(route.methods or set())),
-                                suggestion="Usar um modelo de erro padronizado para todas as respostas de erro",
+                                method=", ".join(
+                                    sorted(route.methods or set())
+                                ),
+                                suggestion=(
+                                    "Usar um modelo de erro padronizado "
+                                    "para todas as respostas de erro"
+                                ),
                             )
                         )
 
@@ -110,7 +119,10 @@ class ErrorExceptionHandlersRule(Rule):
             issues.append(
                 self.create_issue(
                     message="Aplicação não tem exception handlers registrados.",
-                    suggestion="Registrar handlers para exceções comuns (HTTPException, ValidationError, Exception)",
+                    suggestion=(
+                        "Registrar handlers para exceções comuns "
+                        "(HTTPException, ValidationError, Exception)"
+                    ),
                 )
             )
 
@@ -145,10 +157,17 @@ class ErrorHTTPExceptionUsageRule(Rule):
                 if methods.intersection(modifying_methods):
                     issues.append(
                         self.create_issue(
-                            message="Endpoint não usa HTTPException para tratamento de erros.",
+                            message=(
+                                "Endpoint não usa HTTPException "
+                                "para tratamento de erros."
+                            ),
                             path=route.path,
                             method=", ".join(sorted(methods)),
-                            suggestion="Usar raise HTTPException(status_code=4xx, detail='...') para erros",
+                            suggestion=(
+                                "Usar raise HTTPException"
+                                "(status_code=4xx, detail='...') "
+                                "para erros"
+                            ),
                         )
                     )
 

@@ -8,7 +8,6 @@ from pathlib import Path
 from .analyzer.base import AnalysisMetrics, AnalysisReport, Issue, Severity
 from .analyzer.scoring import APIScorer
 
-
 __all__ = [
     "OpenAPIAnalyzer",
 ]
@@ -47,11 +46,11 @@ class OpenAPIAnalyzer:
         if path.suffix in (".yaml", ".yml"):
             try:
                 import yaml
-            except ImportError:
+            except ImportError as err:
                 raise ImportError(
                     "PyYAML é necessário para carregar specs YAML. "
                     "Instale com: pip install fastapi-validator[yaml]"
-                )
+                ) from err
             return yaml.safe_load(content)
 
         return json.loads(content)
@@ -84,17 +83,27 @@ class OpenAPIAnalyzer:
 
         # Métricas
         checks_executed = 6
-        rules_with_issues: set[str] = {issue.rule_id for issue in issues}
+        rules_with_issues: set[str] = {
+            issue.rule_id for issue in issues
+        }
 
         issues_by_severity: dict[str, int] = {}
         for issue in issues:
             sev = str(issue.severity)
-            issues_by_severity[sev] = issues_by_severity.get(sev, 0) + 1
+            issues_by_severity[sev] = (
+                issues_by_severity.get(sev, 0) + 1
+            )
 
         issues_by_category: dict[str, int] = {}
         for issue in issues:
-            cat = issue.rule_id.rsplit("-", 1)[0] if "-" in issue.rule_id else issue.rule_id
-            issues_by_category[cat] = issues_by_category.get(cat, 0) + 1
+            cat = (
+                issue.rule_id.rsplit("-", 1)[0]
+                if "-" in issue.rule_id
+                else issue.rule_id
+            )
+            issues_by_category[cat] = (
+                issues_by_category.get(cat, 0) + 1
+            )
 
         all_categories = set(APIScorer.CATEGORY_MAPPING.keys())
         categories_with_issues: set[str] = set()
@@ -103,8 +112,14 @@ class OpenAPIAnalyzer:
                 if issue.rule_id in rule_ids:
                     categories_with_issues.add(cat)
                     break
-        categories_clean = len(all_categories) - len(categories_with_issues)
-        coverage = (categories_clean / len(all_categories) * 100) if all_categories else 0.0
+        categories_clean = (
+            len(all_categories) - len(categories_with_issues)
+        )
+        coverage = (
+            (categories_clean / len(all_categories) * 100)
+            if all_categories
+            else 0.0
+        )
 
         metrics = AnalysisMetrics(
             execution_time_ms=elapsed_ms,
@@ -127,7 +142,10 @@ class OpenAPIAnalyzer:
     def _count_routes(cls, paths: dict) -> int:
         """Conta o número total de operações."""
         count = 0
-        http_methods = {"get", "post", "put", "patch", "delete", "head", "options"}
+        http_methods = {
+            "get", "post", "put", "patch",
+            "delete", "head", "options",
+        }
         for path_ops in paths.values():
             for method in path_ops:
                 if method.lower() in http_methods:
@@ -149,7 +167,10 @@ class OpenAPIAnalyzer:
                 if "_" in segment:
                     issues.append(Issue(
                         rule_id="naming-kebab-case",
-                        message=f"Path '{path}' usa underscore em vez de kebab-case.",
+                        message=(
+                            f"Path '{path}' usa underscore "
+                            f"em vez de kebab-case."
+                        ),
                         severity=Severity.WARNING,
                         path=path,
                         suggestion="Usar kebab-case: trocar '_' por '-'",
@@ -160,10 +181,13 @@ class OpenAPIAnalyzer:
                 if segment != segment.lower():
                     issues.append(Issue(
                         rule_id="naming-lowercase",
-                        message=f"Path '{path}' contém letras maiúsculas.",
+                        message=(
+                            f"Path '{path}' contém "
+                            f"letras maiúsculas."
+                        ),
                         severity=Severity.WARNING,
                         path=path,
-                        suggestion="Usar apenas letras minúsculas nos paths",
+                        suggestion="Usar apenas letras minúsculas",
                     ))
                     break
 
@@ -189,24 +213,37 @@ class OpenAPIAnalyzer:
             if "post" in operations:
                 op = operations["post"]
                 responses = op.get("responses", {})
-                if responses and "201" not in responses and "200" in responses:
+                has_200 = "200" in responses
+                has_201 = "201" in responses
+                if responses and not has_201 and has_200:
                     issues.append(Issue(
                         rule_id="http-post-status",
-                        message=f"POST '{path}' retorna 200 em vez de 201.",
+                        message=(
+                            f"POST '{path}' retorna 200 "
+                            f"em vez de 201."
+                        ),
                         severity=Severity.INFO,
                         path=path,
                         method="POST",
-                        suggestion="POST para criação deve retornar 201 Created",
+                        suggestion=(
+                            "POST para criação deve "
+                            "retornar 201 Created"
+                        ),
                     ))
 
             # DELETE deve retornar 204
             if "delete" in operations:
                 op = operations["delete"]
                 responses = op.get("responses", {})
-                if responses and "204" not in responses and "200" in responses:
+                has_200 = "200" in responses
+                has_204 = "204" in responses
+                if responses and not has_204 and has_200:
                     issues.append(Issue(
                         rule_id="http-delete-status",
-                        message=f"DELETE '{path}' retorna 200 em vez de 204.",
+                        message=(
+                            f"DELETE '{path}' retorna 200 "
+                            f"em vez de 204."
+                        ),
                         severity=Severity.INFO,
                         path=path,
                         method="DELETE",
@@ -219,7 +256,10 @@ class OpenAPIAnalyzer:
     def _check_documentation(cls, paths: dict) -> list[Issue]:
         """Verifica documentação dos endpoints."""
         issues = []
-        http_methods = {"get", "post", "put", "patch", "delete", "head", "options"}
+        http_methods = {
+            "get", "post", "put", "patch",
+            "delete", "head", "options",
+        }
 
         for path, operations in paths.items():
             for method, op in operations.items():
@@ -232,7 +272,7 @@ class OpenAPIAnalyzer:
                 if not op.get("summary"):
                     issues.append(Issue(
                         rule_id="docs-summary-required",
-                        message=f"Endpoint sem summary.",
+                        message="Endpoint sem summary.",
                         severity=Severity.WARNING,
                         path=path,
                         method=method.upper(),
@@ -243,7 +283,7 @@ class OpenAPIAnalyzer:
                 if not op.get("description"):
                     issues.append(Issue(
                         rule_id="docs-description-required",
-                        message=f"Endpoint sem description.",
+                        message="Endpoint sem description.",
                         severity=Severity.INFO,
                         path=path,
                         method=method.upper(),
@@ -254,7 +294,7 @@ class OpenAPIAnalyzer:
                 if not op.get("tags"):
                     issues.append(Issue(
                         rule_id="docs-tags-required",
-                        message=f"Endpoint sem tags.",
+                        message="Endpoint sem tags.",
                         severity=Severity.INFO,
                         path=path,
                         method=method.upper(),
@@ -265,7 +305,7 @@ class OpenAPIAnalyzer:
                 if not op.get("operationId"):
                     issues.append(Issue(
                         rule_id="docs-operation-id",
-                        message=f"Endpoint sem operationId.",
+                        message="Endpoint sem operationId.",
                         severity=Severity.INFO,
                         path=path,
                         method=method.upper(),
@@ -278,7 +318,10 @@ class OpenAPIAnalyzer:
     def _check_status_codes(cls, paths: dict) -> list[Issue]:
         """Verifica status codes nas respostas."""
         issues = []
-        http_methods = {"get", "post", "put", "patch", "delete", "head", "options"}
+        http_methods = {
+            "get", "post", "put", "patch",
+            "delete", "head", "options",
+        }
 
         for path, operations in paths.items():
             for method, op in operations.items():
@@ -291,11 +334,14 @@ class OpenAPIAnalyzer:
                 if not responses:
                     issues.append(Issue(
                         rule_id="status-responses-defined",
-                        message=f"Endpoint não define responses.",
+                        message="Endpoint não define responses.",
                         severity=Severity.WARNING,
                         path=path,
                         method=method.upper(),
-                        suggestion="Definir responses com os códigos HTTP esperados",
+                        suggestion=(
+                            "Definir responses com "
+                            "os códigos HTTP esperados"
+                        ),
                     ))
 
         return issues
@@ -310,8 +356,12 @@ class OpenAPIAnalyzer:
         security_schemes = components.get("securitySchemes", {})
         global_security = spec.get("security", [])
 
-        http_methods = {"get", "post", "put", "patch", "delete", "head", "options"}
         modifying_methods = {"post", "put", "patch", "delete"}
+
+        exempt_keywords = [
+            "/login", "/auth", "/register",
+            "/signup", "/token", "/health",
+        ]
 
         for path, operations in paths.items():
             for method, op in operations.items():
@@ -321,19 +371,29 @@ class OpenAPIAnalyzer:
                     continue
 
                 # Pular rotas de auth
-                exempt_keywords = ["/login", "/auth", "/register", "/signup", "/token", "/health"]
                 if any(kw in path.lower() for kw in exempt_keywords):
                     continue
 
                 op_security = op.get("security")
-                if op_security is None and not global_security and not security_schemes:
+                no_security = (
+                    op_security is None
+                    and not global_security
+                    and not security_schemes
+                )
+                if no_security:
                     issues.append(Issue(
                         rule_id="security-auth-required",
-                        message=f"Endpoint que modifica dados não tem segurança definida.",
+                        message=(
+                            "Endpoint que modifica dados "
+                            "não tem segurança definida."
+                        ),
                         severity=Severity.WARNING,
                         path=path,
                         method=method.upper(),
-                        suggestion="Adicionar security ao endpoint ou definir securitySchemes globais",
+                        suggestion=(
+                            "Adicionar security ao endpoint "
+                            "ou definir securitySchemes globais"
+                        ),
                     ))
 
         return issues
@@ -342,7 +402,10 @@ class OpenAPIAnalyzer:
     def _check_error_responses(cls, paths: dict) -> list[Issue]:
         """Verifica documentação de respostas de erro."""
         issues = []
-        http_methods = {"get", "post", "put", "patch", "delete", "head", "options"}
+        http_methods = {
+            "get", "post", "put", "patch",
+            "delete", "head", "options",
+        }
 
         for path, operations in paths.items():
             for method, op in operations.items():
@@ -360,11 +423,17 @@ class OpenAPIAnalyzer:
                 if responses and not has_error_response:
                     issues.append(Issue(
                         rule_id="error-response-documented",
-                        message=f"Endpoint não documenta respostas de erro (4xx/5xx).",
+                        message=(
+                            "Endpoint não documenta "
+                            "respostas de erro (4xx/5xx)."
+                        ),
                         severity=Severity.WARNING,
                         path=path,
                         method=method.upper(),
-                        suggestion="Adicionar responses com códigos 4xx/5xx",
+                        suggestion=(
+                            "Adicionar responses "
+                            "com códigos 4xx/5xx"
+                        ),
                     ))
 
         return issues

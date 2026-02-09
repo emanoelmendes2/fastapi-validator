@@ -9,7 +9,13 @@ from typing import NoReturn
 
 from .analyzer import APIAnalyzer, APIScorer, Severity
 from .config import load_config
-from .reports import HTMLReporter, BadgeGenerator, GitHubAnnotationsReporter, JUnitReporter, CSVReporter
+from .reports import (
+    BadgeGenerator,
+    CSVReporter,
+    GitHubAnnotationsReporter,
+    HTMLReporter,
+    JUnitReporter,
+)
 
 
 class Colors:
@@ -50,7 +56,10 @@ def load_app(app_path: str):
     try:
         app = getattr(module, app_name)
     except AttributeError:
-        print(f"{Colors.RED}Erro: '{app_name}' não encontrado em '{module_path}'{Colors.RESET}")
+        print(
+            f"{Colors.RED}Erro: '{app_name}' não encontrado "
+            f"em '{module_path}'{Colors.RESET}"
+        )
         sys.exit(1)
 
     return app
@@ -150,7 +159,13 @@ def _analyze_spec(args: argparse.Namespace, config) -> int:
         )
 
         if score:
-            print(f"\n{Colors.BOLD}Score: {score.total_score}/100 ({score.grade.value}){Colors.RESET}")
+            score_val = score.total_score
+            grade_val = score.grade.value
+            print(
+                f"\n{Colors.BOLD}Score: "
+                f"{score_val}/100 ({grade_val})"
+                f"{Colors.RESET}"
+            )
 
         print("=" * 50)
 
@@ -257,7 +272,12 @@ def cmd_analyze(args: argparse.Namespace) -> int:
             reporter.save(report, output_path)
             print(f"Relatório CSV salvo em: {output_path}")
             if hasattr(args, "metrics") and args.metrics and report.metrics:
-                metrics_path = output_path.replace(".csv", "_metrics.csv") if output_path.endswith(".csv") else output_path + "_metrics.csv"
+                if output_path.endswith(".csv"):
+                    metrics_path = output_path.replace(
+                        ".csv", "_metrics.csv"
+                    )
+                else:
+                    metrics_path = output_path + "_metrics.csv"
                 reporter.save_metrics(report, metrics_path)
                 print(f"Métricas CSV salvas em: {metrics_path}")
         else:
@@ -291,7 +311,13 @@ def cmd_analyze(args: argparse.Namespace) -> int:
         )
 
         if score:
-            print(f"\n{Colors.BOLD}Score: {score.total_score}/100 ({score.grade.value}){Colors.RESET}")
+            score_val = score.total_score
+            grade_val = score.grade.value
+            print(
+                f"\n{Colors.BOLD}Score: "
+                f"{score_val}/100 ({grade_val})"
+                f"{Colors.RESET}"
+            )
 
         print("=" * 50)
 
@@ -302,9 +328,19 @@ def cmd_analyze(args: argparse.Namespace) -> int:
                 print()
 
         if report.has_errors:
-            print(f"\n{Colors.RED}{Colors.BOLD}API tem {report.error_count} erro(s)!{Colors.RESET}")
+            err_count = report.error_count
+            print(
+                f"\n{Colors.RED}{Colors.BOLD}"
+                f"API tem {err_count} erro(s)!"
+                f"{Colors.RESET}"
+            )
         elif report.warning_count > 0:
-            print(f"\n{Colors.YELLOW}API tem {report.warning_count} warning(s).{Colors.RESET}")
+            warn_count = report.warning_count
+            print(
+                f"\n{Colors.YELLOW}"
+                f"API tem {warn_count} warning(s)."
+                f"{Colors.RESET}"
+            )
         else:
             print(f"\n{Colors.GREEN}API está em conformidade!{Colors.RESET}")
 
@@ -374,7 +410,10 @@ def main() -> NoReturn:
     )
     analyze_parser.add_argument(
         "app",
-        help="Aplicação no formato 'module:app' ou caminho para spec OpenAPI (.json/.yaml/.yml)",
+        help=(
+            "Aplicação no formato 'module:app' ou caminho "
+            "para spec OpenAPI (.json/.yaml/.yml)"
+        ),
     )
     analyze_parser.add_argument(
         "-o", "--output",

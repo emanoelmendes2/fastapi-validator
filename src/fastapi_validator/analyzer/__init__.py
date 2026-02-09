@@ -1,8 +1,12 @@
 """Analisador de APIs FastAPI para conformidade RESTful."""
 
+from .autofix import (
+    AutoFixer,
+    AutoFixReport,
+    CodeSuggestion,
+    format_suggestions_report,
+)
 from .base import AnalysisMetrics, AnalysisReport, Issue, Rule, Severity
-from .runner import APIAnalyzer
-from .scoring import APIScorer, APIScore, Grade, format_score_report
 from .breaking_changes import (
     BreakingChangesDetector,
     BreakingChangesReport,
@@ -11,16 +15,12 @@ from .breaking_changes import (
     format_breaking_changes_report,
 )
 from .dependencies import (
-    DependencyAnalyzer,
     DependencyAnalysisReport,
+    DependencyAnalyzer,
     format_dependency_report,
 )
-from .autofix import (
-    AutoFixer,
-    AutoFixReport,
-    CodeSuggestion,
-    format_suggestions_report,
-)
+from .runner import APIAnalyzer
+from .scoring import APIScore, APIScorer, Grade, format_score_report
 
 __all__ = [
     # Core

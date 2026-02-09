@@ -132,21 +132,42 @@ class APIScorer:
     }
 
     CATEGORY_MAPPING = {
-        "naming": ["naming-kebab-case", "naming-plural-resources", "naming-no-verbs",
-                   "naming-lowercase", "naming-no-trailing-slash"],
-        "http": ["http-get-no-body", "http-post-status", "http-delete-status",
-                 "http-put-patch-body"],
-        "docs": ["docs-summary-required", "docs-description-required", "docs-tags-required",
-                 "docs-operation-id", "docs-response-model"],
-        "status": ["status-valid-codes", "status-responses-defined", "status-error-codes"],
-        "response": ["response-snake-case", "response-pydantic-model"],
-        "versioning": ["versioning-path", "versioning-consistent"],
-        "security": ["security-auth-required", "security-sensitive-url", "security-https",
-                     "security-deprecated-docs"],
-        "pagination": ["pagination-list-endpoints", "pagination-consistency",
-                       "pagination-defaults", "pagination-max-limit"],
-        "error_handling": ["error-response-documented", "error-consistent-format",
-                          "error-exception-handlers", "error-http-exception-usage"],
+        "naming": [
+            "naming-kebab-case", "naming-plural-resources",
+            "naming-no-verbs", "naming-lowercase",
+            "naming-no-trailing-slash",
+        ],
+        "http": [
+            "http-get-no-body", "http-post-status",
+            "http-delete-status", "http-put-patch-body",
+        ],
+        "docs": [
+            "docs-summary-required", "docs-description-required",
+            "docs-tags-required", "docs-operation-id",
+            "docs-response-model",
+        ],
+        "status": [
+            "status-valid-codes", "status-responses-defined",
+            "status-error-codes",
+        ],
+        "response": [
+            "response-snake-case", "response-pydantic-model",
+        ],
+        "versioning": [
+            "versioning-path", "versioning-consistent",
+        ],
+        "security": [
+            "security-auth-required", "security-sensitive-url",
+            "security-https", "security-deprecated-docs",
+        ],
+        "pagination": [
+            "pagination-list-endpoints", "pagination-consistency",
+            "pagination-defaults", "pagination-max-limit",
+        ],
+        "error_handling": [
+            "error-response-documented", "error-consistent-format",
+            "error-exception-handlers", "error-http-exception-usage",
+        ],
     }
 
     def __init__(

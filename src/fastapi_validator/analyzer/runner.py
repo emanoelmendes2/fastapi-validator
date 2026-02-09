@@ -150,8 +150,14 @@ class APIAnalyzer:
         # Contagens por categoria
         issues_by_category: dict[str, int] = {}
         for issue in all_issues:
-            category = issue.rule_id.rsplit("-", 1)[0] if "-" in issue.rule_id else issue.rule_id
-            issues_by_category[category] = issues_by_category.get(category, 0) + 1
+            category = (
+                issue.rule_id.rsplit("-", 1)[0]
+                if "-" in issue.rule_id
+                else issue.rule_id
+            )
+            issues_by_category[category] = (
+                issues_by_category.get(category, 0) + 1
+            )
 
         # Coverage: % de categorias sem issues
         from .scoring import APIScorer
@@ -162,8 +168,14 @@ class APIAnalyzer:
                 if issue.rule_id in rule_ids:
                     categories_with_issues.add(cat)
                     break
-        categories_clean = len(all_categories) - len(categories_with_issues)
-        coverage = (categories_clean / len(all_categories) * 100) if all_categories else 0.0
+        categories_clean = (
+            len(all_categories) - len(categories_with_issues)
+        )
+        coverage = (
+            (categories_clean / len(all_categories) * 100)
+            if all_categories
+            else 0.0
+        )
 
         metrics = AnalysisMetrics(
             execution_time_ms=elapsed_ms,

@@ -3,7 +3,7 @@
 from datetime import datetime
 from pathlib import Path
 
-from ..analyzer.base import AnalysisReport, Severity
+from ..analyzer.base import AnalysisReport
 from ..analyzer.scoring import APIScore, Grade
 
 
