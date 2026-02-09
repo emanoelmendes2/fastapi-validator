@@ -76,6 +76,138 @@ class HTMLReporter:
         context = self._build_context(report, score, app_title)
         return self._render(context)
 
+    CATEGORY_NAMES = {
+        "naming": "Nomenclatura",
+        "http": "HTTP Methods",
+        "docs": "Documentacao",
+        "status": "Status Codes",
+        "response": "Response Format",
+        "versioning": "Versionamento",
+        "security": "Seguranca",
+        "pagination": "Paginacao",
+        "error_handling": "Error Handling",
+    }
+
+    ISSUE_TEMPLATE = (
+        '<div class="issue-item" data-severity="{severity}">'
+        '<div class="issue-header">'
+        '<span class="severity-badge severity-{severity}">'
+        "{severity}</span>"
+        '<span class="issue-rule">{rule_id}</span>'
+        "</div>"
+        '<p class="issue-message">{message}</p>'
+        '<div class="issue-meta">'
+        "{path_html}{method_html}"
+        "</div>"
+        "{suggestion_html}"
+        "</div>"
+    )
+
+    def _render_issue_html(self, issue) -> str:
+        """Renderiza um issue como HTML."""
+        path_html = ""
+        if issue.path:
+            path_html = (
+                f"<span>Path: <code>{issue.path}"
+                f"</code></span>"
+            )
+
+        method_html = ""
+        if issue.method:
+            method_html = (
+                f"<span>Method: <code>{issue.method}"
+                f"</code></span>"
+            )
+
+        suggestion_html = ""
+        if issue.suggestion:
+            suggestion_html = (
+                '<div class="issue-suggestion">'
+                f"{issue.suggestion}</div>"
+            )
+
+        return self.ISSUE_TEMPLATE.format(
+            severity=issue.severity.value,
+            rule_id=issue.rule_id,
+            message=issue.message,
+            path_html=path_html,
+            method_html=method_html,
+            suggestion_html=suggestion_html,
+        )
+
+    def _build_issue_groups(
+        self,
+        report: AnalysisReport,
+        score: APIScore | None,
+    ) -> list[dict]:
+        """Agrupa issues por categoria para o template."""
+        from .._compat import group_issues_by_category
+
+        groups = group_issues_by_category(report.issues)
+        result = []
+
+        for cat_id, cat_issues in groups:
+            cat_name = self.CATEGORY_NAMES.get(
+                cat_id, cat_id.replace("_", " ").title()
+            )
+            cat_score_label = ""
+            cat_color = "#666"
+            if score and cat_id in score.categories:
+                pct = score.categories[cat_id].percentage
+                cat_score_label = f"Nota: {pct:.0f}/100"
+                cat_color = self._get_score_color(pct)
+
+            # Contagem por severidade
+            w = sum(
+                1 for i in cat_issues
+                if i.severity.value == "warning"
+            )
+            inf = sum(
+                1 for i in cat_issues
+                if i.severity.value == "info"
+            )
+            e = sum(
+                1 for i in cat_issues
+                if i.severity.value == "error"
+            )
+            total = len(cat_issues)
+
+            # Badges HTML por severidade para o accordion
+            badge_parts = []
+            if e:
+                badge_parts.append(
+                    f'<span class="mini-badge mini-error">'
+                    f'{e} erro{"s" if e != 1 else ""}</span>'
+                )
+            if w:
+                badge_parts.append(
+                    f'<span class="mini-badge mini-warning">'
+                    f'{w} warning{"s" if w != 1 else ""}</span>'
+                )
+            if inf:
+                badge_parts.append(
+                    f'<span class="mini-badge mini-info">'
+                    f'{inf} info{"s" if inf != 1 else ""}</span>'
+                )
+            severity_badges = "".join(badge_parts)
+
+            items_html = "\n".join(
+                self._render_issue_html(issue)
+                for issue in cat_issues
+            )
+
+            result.append({
+                "category_id": cat_id,
+                "category_name": cat_name,
+                "category_score_label": cat_score_label,
+                "category_color": cat_color,
+                "total_count": str(total),
+                "severity_badges": severity_badges,
+                "items_html": items_html,
+            })
+
+        return result
+
     def _build_context(
         self,
         report: AnalysisReport,
@@ -85,7 +217,9 @@ class HTMLReporter:
         """Constrói o contexto para renderização."""
         context = {
             "app_title": app_title,
-            "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "timestamp": datetime.now().strftime(
+                "%d/%m/%Y %H:%M:%S"
+            ),
             "version": "0.1.0",
             "routes_count": report.analyzed_routes,
             "error_count": report.error_count,
@@ -93,33 +227,21 @@ class HTMLReporter:
             "info_count": report.info_count,
             "total_issues": len(report.issues),
             "has_issues": len(report.issues) > 0,
-            "issues": [
-                {
-                    "severity": issue.severity.value,
-                    "rule_id": issue.rule_id,
-                    "message": issue.message,
-                    "path": issue.path,
-                    "method": issue.method,
-                    "suggestion": issue.suggestion,
-                }
-                for issue in report.issues
-            ],
+            "issue_groups": self._build_issue_groups(
+                report, score
+            ),
         }
 
         if score:
             context.update({
                 "score": score.total_score,
                 "grade": score.grade.value,
-                "grade_class": self.GRADE_CLASSES.get(score.grade, "c"),
-                "score_color": self._get_score_color(score.total_score),
-                "categories": [
-                    {
-                        "name": self._format_category_name(name),
-                        "score": cat.percentage,
-                        "color": self._get_score_color(cat.percentage),
-                    }
-                    for name, cat in score.categories.items()
-                ],
+                "grade_class": self.GRADE_CLASSES.get(
+                    score.grade, "c"
+                ),
+                "score_color": self._get_score_color(
+                    score.total_score
+                ),
             })
 
         return context
@@ -136,8 +258,9 @@ class HTMLReporter:
             placeholder = "{{" + key + "}}"
             html = html.replace(placeholder, str(value))
 
-        html = self._render_conditionals(html, context)
+        # Loops primeiro (resolve {{#if}} interno via item_conditionals)
         html = self._render_loops(html, context)
+        html = self._render_conditionals(html, context)
 
         return html
 
@@ -145,16 +268,23 @@ class HTMLReporter:
         """Renderiza blocos condicionais {{#if}}...{{/if}}."""
         import re
 
-        pattern = r"\{\{#if (\w+)\}\}(.*?)\{\{/if\}\}"
+        # Suporte a {{#if}}...{{else}}...{{/if}}
+        pattern = (
+            r"\{\{#if (\w+)\}\}"
+            r"(.*?)"
+            r"(?:\{\{else\}\}(.*?))?"
+            r"\{\{/if\}\}"
+        )
 
         def replace_conditional(match: re.Match) -> str:
             key = match.group(1)
-            content = match.group(2)
+            if_content = match.group(2)
+            else_content = match.group(3) or ""
             value = context.get(key)
 
             if value:
-                return content
-            return ""
+                return if_content
+            return else_content
 
         return re.sub(pattern, replace_conditional, html, flags=re.DOTALL)
 
@@ -178,15 +308,23 @@ class HTMLReporter:
                 for item_key, item_value in item.items():
                     if item_value is None:
                         continue
+                    if isinstance(item_value, (list, dict)):
+                        continue
                     placeholder = "{{" + item_key + "}}"
-                    item_html = item_html.replace(placeholder, str(item_value))
+                    item_html = item_html.replace(
+                        placeholder, str(item_value)
+                    )
 
-                item_html = self._render_item_conditionals(item_html, item)
+                item_html = self._render_item_conditionals(
+                    item_html, item
+                )
                 rendered_items.append(item_html)
 
             return "".join(rendered_items)
 
-        return re.sub(pattern, replace_loop, html, flags=re.DOTALL)
+        return re.sub(
+            pattern, replace_loop, html, flags=re.DOTALL
+        )
 
     def _render_item_conditionals(self, html: str, item: dict) -> str:
         """Renderiza condicionais dentro de itens de loop."""

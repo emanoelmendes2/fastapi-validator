@@ -3,6 +3,7 @@
 import argparse
 import importlib
 import json
+import os
 import sys
 from pathlib import Path
 from typing import NoReturn
@@ -39,10 +40,87 @@ class Colors:
         cls.RESET = ""
 
 
+def _ensure_cwd_in_path() -> None:
+    """Garante que o diretório atual está no sys.path."""
+    cwd = os.getcwd()
+    if cwd not in sys.path:
+        sys.path.insert(0, cwd)
+
+
+def _discover_app() -> str | None:
+    """Auto-descobre a aplicação FastAPI no diretório atual."""
+    _ensure_cwd_in_path()
+
+    candidates = [
+        "main:app",
+        "app.main:app",
+        "app:app",
+        "api:app",
+        "api.main:app",
+        "src.main:app",
+        "src.app.main:app",
+    ]
+
+    last_error: Exception | None = None
+
+    for candidate in candidates:
+        module_path, app_name = candidate.rsplit(":", 1)
+        try:
+            module = importlib.import_module(module_path)
+            obj = getattr(module, app_name, None)
+            if obj is not None:
+                from fastapi import FastAPI
+                if isinstance(obj, FastAPI):
+                    return candidate
+        except ImportError as e:
+            # Distinguir "módulo não existe" de "erro interno"
+            missing = getattr(e, "name", None) or ""
+            module_missing = (
+                missing == module_path
+                or module_path.startswith(missing + ".")
+            )
+            if module_missing:
+                continue
+            # Dependência interna faltando
+            last_error = e
+            print(
+                f"{Colors.YELLOW}Encontrado '{candidate}' "
+                f"mas falhou ao importar:{Colors.RESET}"
+            )
+            print(f"  {e}\n")
+            continue
+        except Exception as e:
+            # Módulo encontrado mas falhou ao carregar
+            last_error = e
+            print(
+                f"{Colors.YELLOW}Encontrado '{candidate}' "
+                f"mas falhou ao importar:{Colors.RESET}"
+            )
+            print(f"  {e}\n")
+            continue
+
+    if last_error:
+        print(
+            f"{Colors.YELLOW}Dica: o módulo foi encontrado "
+            f"mas tem erros de inicialização.{Colors.RESET}"
+        )
+        print(
+            "Verifique variáveis de ambiente (.env) "
+            "e dependências do projeto.\n"
+        )
+
+    return None
+
+
 def load_app(app_path: str):
     """Carrega uma aplicação FastAPI a partir de uma string module:app."""
+    _ensure_cwd_in_path()
+
     if ":" not in app_path:
-        print(f"{Colors.RED}Erro: Formato inválido. Use 'module:app'{Colors.RESET}")
+        print(
+            f"{Colors.RED}Erro: Formato inválido. "
+            f"Use 'module:app'{Colors.RESET}"
+        )
         sys.exit(1)
 
     module_path, app_name = app_path.rsplit(":", 1)
@@ -50,7 +128,24 @@ def load_app(app_path: str):
     try:
         module = importlib.import_module(module_path)
     except ImportError as e:
-        print(f"{Colors.RED}Erro ao importar módulo '{module_path}': {e}{Colors.RESET}")
+        if getattr(e, "name", None) == module_path:
+            print(
+                f"{Colors.RED}Erro: módulo '{module_path}' "
+                f"não encontrado.{Colors.RESET}"
+            )
+            print(
+                "Verifique se está no diretório correto "
+                "e o módulo existe."
+            )
+        else:
+            print(
+                f"{Colors.RED}Erro ao importar "
+                f"'{module_path}': {e}{Colors.RESET}"
+            )
+            print(
+                f"{Colors.YELLOW}Dica: instale a dependência "
+                f"faltante e tente novamente.{Colors.RESET}"
+            )
         sys.exit(1)
 
     try:
@@ -89,6 +184,71 @@ def format_issue(issue, show_suggestions: bool = True) -> str:
         parts.append(f"\n  {Colors.GREEN}Sugestão: {issue.suggestion}{Colors.RESET}")
 
     return "".join(parts)
+
+
+CATEGORY_NAMES = {
+    "naming": "Nomenclatura",
+    "http": "HTTP Methods",
+    "docs": "Documentação",
+    "status": "Status Codes",
+    "response": "Response Format",
+    "versioning": "Versionamento",
+    "security": "Segurança",
+    "pagination": "Paginação",
+    "error_handling": "Error Handling",
+}
+
+
+def _group_issues_by_category(issues, score=None):
+    """Agrupa issues por categoria com nome e score."""
+    from ._compat import group_issues_by_category
+
+    groups = group_issues_by_category(issues)
+    result = []
+    for cat_id, cat_issues in groups:
+        cat_name = CATEGORY_NAMES.get(cat_id, cat_id)
+        cat_score = None
+        if score and cat_id in score.categories:
+            cat_score = score.categories[cat_id].percentage
+        result.append(
+            (cat_id, cat_name, cat_score, cat_issues)
+        )
+    return result
+
+
+def _print_issues_by_category(
+    issues, score=None, show_suggestions=True,
+):
+    """Exibe issues agrupados por categoria."""
+    groups = _group_issues_by_category(issues, score)
+
+    for _cat_id, cat_name, cat_score, cat_issues in groups:
+        # Header da categoria
+        header = f"{Colors.BOLD}{cat_name}{Colors.RESET}"
+        if cat_score is not None:
+            if cat_score >= 85:
+                sc_color = Colors.GREEN
+            elif cat_score >= 70:
+                sc_color = Colors.BLUE
+            elif cat_score >= 50:
+                sc_color = Colors.YELLOW
+            else:
+                sc_color = Colors.RED
+            header += (
+                f" {sc_color}"
+                f"Nota: {cat_score:.0f}/100"
+                f"{Colors.RESET}"
+            )
+        count = len(cat_issues)
+        header += f" ({count} issue{'s' if count != 1 else ''})"
+
+        print(f"\n{'-' * 50}")
+        print(f"  {header}")
+        print(f"{'-' * 50}")
+
+        for issue in cat_issues:
+            print(format_issue(issue, show_suggestions))
+            print()
 
 
 def _is_spec_file(path: str) -> bool:
@@ -170,10 +330,10 @@ def _analyze_spec(args: argparse.Namespace, config) -> int:
         print("=" * 50)
 
         if report.issues:
-            print(f"\n{Colors.BOLD}Issues encontrados:{Colors.RESET}\n")
-            for issue in report.issues:
-                print(format_issue(issue, show_suggestions=not args.no_suggestions))
-                print()
+            _print_issues_by_category(
+                report.issues, score,
+                show_suggestions=not args.no_suggestions,
+            )
 
     # Exibir métricas se solicitado
     if hasattr(args, "metrics") and args.metrics and report.metrics:
@@ -194,6 +354,29 @@ def cmd_analyze(args: argparse.Namespace) -> int:
     """Executa o comando analyze."""
     # Carrega configuração do pyproject.toml como defaults
     config = load_config()
+
+    # Auto-discovery se nenhum app foi informado
+    if args.app is None:
+        print(
+            f"{Colors.BOLD}Procurando app FastAPI "
+            f"no diretório atual...{Colors.RESET}"
+        )
+        discovered = _discover_app()
+        if discovered is None:
+            print(
+                f"{Colors.RED}Erro: Nenhuma app FastAPI "
+                f"encontrada no diretório atual.{Colors.RESET}"
+            )
+            print(
+                "Tente informar o caminho: "
+                "fastapi-validator analyze module:app"
+            )
+            return 1
+        args.app = discovered
+        print(
+            f"{Colors.GREEN}App encontrada: "
+            f"{discovered}{Colors.RESET}\n"
+        )
 
     # Detectar se é um arquivo de spec OpenAPI
     if _is_spec_file(args.app):
@@ -322,10 +505,10 @@ def cmd_analyze(args: argparse.Namespace) -> int:
         print("=" * 50)
 
         if report.issues:
-            print(f"\n{Colors.BOLD}Issues encontrados:{Colors.RESET}\n")
-            for issue in report.issues:
-                print(format_issue(issue, show_suggestions=not args.no_suggestions))
-                print()
+            _print_issues_by_category(
+                report.issues, score,
+                show_suggestions=not args.no_suggestions,
+            )
 
         if report.has_errors:
             err_count = report.error_count
@@ -410,9 +593,12 @@ def main() -> NoReturn:
     )
     analyze_parser.add_argument(
         "app",
+        nargs="?",
+        default=None,
         help=(
             "Aplicação no formato 'module:app' ou caminho "
-            "para spec OpenAPI (.json/.yaml/.yml)"
+            "para spec OpenAPI (.json/.yaml/.yml). "
+            "Se omitido, auto-descobre a app no diretório atual."
         ),
     )
     analyze_parser.add_argument(

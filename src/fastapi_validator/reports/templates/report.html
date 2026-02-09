@@ -53,55 +53,44 @@
             </div>
         </section>
 
-        <!-- Category Breakdown -->
-        {{#if categories}}
-        <section class="categories-section">
-            <h2>Pontuacao por Categoria</h2>
-            {{#each categories}}
-            <div class="category-item">
-                <span class="category-name">{{name}}</span>
-                <div class="category-bar">
-                    <div class="category-bar-fill" style="width: {{score}}%; background: {{color}};"></div>
-                </div>
-                <span class="category-score">{{score}}%</span>
-            </div>
-            {{/each}}
-        </section>
-        {{/if}}
-
-        <!-- Issues List -->
+        <!-- Issues by Category -->
         <section class="issues-section">
             <h2>Issues Encontrados ({{total_issues}})</h2>
 
             {{#if has_issues}}
-            <div class="issue-filters">
-                <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="error">Erros</button>
-                <button class="filter-btn" data-filter="warning">Warnings</button>
-                <button class="filter-btn" data-filter="info">Info</button>
-            </div>
-
-            <div class="issues-list">
-                {{#each issues}}
-                <div class="issue-item" data-severity="{{severity}}">
-                    <div class="issue-header">
-                        <span class="severity-badge severity-{{severity}}">{{severity}}</span>
-                        <span class="issue-rule">{{rule_id}}</span>
-                    </div>
-                    <p class="issue-message">{{message}}</p>
-                    <div class="issue-meta">
-                        {{#if path}}<span>Path: <code>{{path}}</code></span>{{/if}}
-                        {{#if method}}<span>Method: <code>{{method}}</code></span>{{/if}}
-                    </div>
-                    {{#if suggestion}}
-                    <div class="issue-suggestion">{{suggestion}}</div>
-                    {{/if}}
-                </div>
+            <!-- Category Navigation -->
+            <nav class="category-nav">
+                {{#each issue_groups}}
+                <a class="category-nav-item" href="#cat-{{category_id}}">
+                    <span class="category-nav-name">{{category_name}}</span>
+                    <span class="category-nav-score" style="color: {{category_color}}">{{category_score_label}}</span>
+                    <span class="category-nav-count">{{total_count}}</span>
+                </a>
                 {{/each}}
+            </nav>
+
+            <!-- Category Groups (collapsed by default) -->
+            {{#each issue_groups}}
+            <div class="category-group" id="cat-{{category_id}}">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>{{category_name}}</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: {{category_color}}">{{category_score_label}}</span>
+                        {{severity_badges}}
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    {{items_html}}
+                </div>
             </div>
+            {{/each}}
+
             {{else}}
             <div class="no-issues">
-                <div class="icon">✓</div>
+                <div class="icon">&#10003;</div>
                 <p>Nenhum issue encontrado! Sua API esta em conformidade com as boas praticas.</p>
             </div>
             {{/if}}
@@ -109,28 +98,63 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>Gerado por <a href="https://github.com/seu-usuario/fastapi-validator">FastAPI Validator</a></p>
+            <p>Gerado por FastAPI Validator</p>
             <p>Versao {{version}}</p>
         </footer>
     </div>
 
     <script>
-        // Filter functionality
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const filter = btn.dataset.filter;
+        function toggleGroup(header) {
+            const list = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            const isCollapsed = list.classList.contains('collapsed');
 
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+            if (isCollapsed) {
+                list.classList.remove('collapsed');
+                icon.innerHTML = '&#9660;';
+                header.parentElement.classList.add('expanded');
+            } else {
+                list.classList.add('collapsed');
+                icon.innerHTML = '&#9654;';
+                header.parentElement.classList.remove('expanded');
+            }
+        }
 
-                document.querySelectorAll('.issue-item').forEach(item => {
-                    if (filter === 'all' || item.dataset.severity === filter) {
-                        item.style.display = 'block';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
+        // Expand group when clicking nav link
+        document.querySelectorAll('.category-nav-item').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const group = document.getElementById(targetId);
+                if (group) {
+                    const list = group.querySelector('.issues-list');
+                    const icon = group.querySelector('.toggle-icon');
+                    list.classList.remove('collapsed');
+                    icon.innerHTML = '&#9660;';
+                    group.classList.add('expanded');
+                    group.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             });
+        });
+
+        // Expand All / Collapse All
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'e' && e.altKey) {
+                document.querySelectorAll('.issues-list').forEach(el => {
+                    el.classList.remove('collapsed');
+                });
+                document.querySelectorAll('.toggle-icon').forEach(el => {
+                    el.innerHTML = '&#9660;';
+                });
+            }
+            if (e.key === 'c' && e.altKey) {
+                document.querySelectorAll('.issues-list').forEach(el => {
+                    el.classList.add('collapsed');
+                });
+                document.querySelectorAll('.toggle-icon').forEach(el => {
+                    el.innerHTML = '&#9654;';
+                });
+            }
         });
     </script>
 </body>

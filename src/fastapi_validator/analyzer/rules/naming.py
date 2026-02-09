@@ -33,7 +33,10 @@ class KebabCaseRule(Rule):
                 if "_" in segment:
                     issues.append(
                         self.create_issue(
-                            message=f"Segmento '{segment}' usa underscore. Use kebab-case.",
+                            message=(
+                                f"Segmento '{segment}' usa "
+                                f"underscore. Use kebab-case."
+                            ),
                             path=route.path,
                             suggestion=f"Renomear para '{segment.replace('_', '-')}'",
                         )
@@ -114,15 +117,86 @@ class NoVerbsRule(Rule):
     description = "URLs não devem conter verbos de ação"
     severity = Severity.WARNING
 
-    COMMON_VERBS = {
-        "get", "create", "update", "delete", "remove", "add",
-        "fetch", "retrieve", "list", "find", "search", "save",
-        "edit", "modify", "set", "put", "post", "patch",
-        "upload", "download", "send", "receive", "process",
-        "validate", "verify", "check", "submit", "cancel",
-        "approve", "reject", "activate", "deactivate", "enable",
-        "disable", "start", "stop", "run", "execute", "perform",
+    # Verbos agrupados por categoria para sugestões específicas
+    RETRIEVAL_VERBS = {
+        "get", "fetch", "retrieve", "download",
+        "find", "search", "list",
     }
+    CREATION_VERBS = {"create", "add", "save"}
+    MUTATION_VERBS = {
+        "update", "edit", "modify",
+        "set", "put", "post", "patch",
+    }
+    DELETION_VERBS = {"delete", "remove"}
+    STATE_VERBS = {
+        "activate", "deactivate", "enable", "disable",
+        "start", "stop", "cancel", "approve", "reject",
+    }
+    PROCESSING_VERBS = {
+        "process", "validate", "verify", "check",
+        "submit", "run", "execute", "perform",
+    }
+    TRANSFER_VERBS = {"upload", "send", "receive"}
+
+    VERB_CATEGORIES = {
+        "retrieval": RETRIEVAL_VERBS,
+        "creation": CREATION_VERBS,
+        "mutation": MUTATION_VERBS,
+        "deletion": DELETION_VERBS,
+        "state": STATE_VERBS,
+        "processing": PROCESSING_VERBS,
+        "transfer": TRANSFER_VERBS,
+    }
+
+    CATEGORY_HINTS = {
+        "retrieval": (
+            "O método GET já indica busca/obtenção. "
+            "Ex: GET /recursos/{id}/arquivo em vez de "
+            "GET /recursos/download/{id}"
+        ),
+        "creation": (
+            "O método POST já indica criação. "
+            "Ex: POST /recursos em vez de "
+            "POST /recursos/create"
+        ),
+        "mutation": (
+            "Os métodos PUT/PATCH já indicam alteração. "
+            "Ex: PUT /recursos/{id} em vez de "
+            "PUT /recursos/update/{id}"
+        ),
+        "deletion": (
+            "O método DELETE já indica remoção. "
+            "Ex: DELETE /recursos/{id} em vez de "
+            "POST /recursos/delete/{id}"
+        ),
+        "state": (
+            "Considere usar PATCH com o estado no body. "
+            "Ex: PATCH /recursos/{id} com "
+            "{\"active\": true} em vez de "
+            "POST /recursos/{id}/activate"
+        ),
+        "processing": (
+            "Verbos de processamento às vezes são "
+            "necessários. Se não houver alternativa, "
+            "considere usar um substantivo: "
+            "/validations em vez de /validate"
+        ),
+        "transfer": (
+            "O método HTTP já indica a direção. "
+            "Ex: POST /recursos/{id}/arquivos "
+            "em vez de POST /recursos/upload"
+        ),
+    }
+
+    # Severidade mais branda para verbos comuns/aceitáveis
+    INFO_CATEGORIES = {"state", "processing"}
+
+    def _get_category(self, word: str) -> str | None:
+        """Retorna a categoria de um verbo."""
+        for category, verbs in self.VERB_CATEGORIES.items():
+            if word in verbs:
+                return category
+        return None
 
     def check(self, app: FastAPI) -> list[Issue]:
         issues = []
@@ -140,15 +214,33 @@ class NoVerbsRule(Rule):
             for segment in segments:
                 words = segment.split("_")
                 for word in words:
-                    if word in self.COMMON_VERBS:
-                        issues.append(
-                            self.create_issue(
-                                message=f"URL contém verbo '{word}'. Use métodos HTTP para ações.",
-                                path=route.path,
-                                suggestion="O método HTTP (GET, POST, PUT, DELETE) deve indicar a ação",
-                            )
+                    category = self._get_category(word)
+                    if category is None:
+                        continue
+
+                    severity = (
+                        Severity.INFO
+                        if category in self.INFO_CATEGORIES
+                        else Severity.WARNING
+                    )
+
+                    hint = self.CATEGORY_HINTS[category]
+
+                    issues.append(
+                        Issue(
+                            rule_id=self.rule_id,
+                            message=(
+                                f"URL contém o verbo '{word}'. "
+                                f"Em REST, a ação deve ser "
+                                f"indicada pelo método HTTP, "
+                                f"não pela URL."
+                            ),
+                            severity=severity,
+                            path=route.path,
+                            suggestion=hint,
                         )
-                        break
+                    )
+                    break
 
         return issues
 
