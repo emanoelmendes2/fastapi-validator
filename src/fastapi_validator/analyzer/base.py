@@ -86,11 +86,39 @@ class Rule(ABC):
 
 
 @dataclass
+class AnalysisMetrics:
+    """Métricas detalhadas da análise para pesquisa."""
+
+    execution_time_ms: float = 0.0
+    rules_executed: int = 0
+    rules_passed: int = 0
+    rules_with_issues: int = 0
+    routes_analyzed: int = 0
+    issues_by_severity: dict[str, int] = field(default_factory=dict)
+    issues_by_category: dict[str, int] = field(default_factory=dict)
+    coverage: float = 0.0
+
+    def to_dict(self) -> dict:
+        """Converte as métricas para dicionário."""
+        return {
+            "execution_time_ms": round(self.execution_time_ms, 2),
+            "rules_executed": self.rules_executed,
+            "rules_passed": self.rules_passed,
+            "rules_with_issues": self.rules_with_issues,
+            "routes_analyzed": self.routes_analyzed,
+            "issues_by_severity": self.issues_by_severity,
+            "issues_by_category": self.issues_by_category,
+            "coverage": round(self.coverage, 2),
+        }
+
+
+@dataclass
 class AnalysisReport:
     """Relatório de análise da API."""
 
     issues: list[Issue] = field(default_factory=list)
     analyzed_routes: int = 0
+    metrics: AnalysisMetrics | None = None
 
     @property
     def error_count(self) -> int:
@@ -129,7 +157,7 @@ class AnalysisReport:
 
     def to_dict(self) -> dict:
         """Converte o relatório para dicionário."""
-        return {
+        result = {
             "summary": {
                 "analyzed_routes": self.analyzed_routes,
                 "total_issues": len(self.issues),
@@ -139,3 +167,6 @@ class AnalysisReport:
             },
             "issues": [issue.to_dict() for issue in self.issues],
         }
+        if self.metrics:
+            result["metrics"] = self.metrics.to_dict()
+        return result

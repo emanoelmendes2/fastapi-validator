@@ -115,10 +115,10 @@ class HTMLReporter:
                 "categories": [
                     {
                         "name": self._format_category_name(name),
-                        "score": cat_score,
-                        "color": self._get_score_color(cat_score),
+                        "score": cat.percentage,
+                        "color": self._get_score_color(cat.percentage),
                     }
-                    for name, cat_score in score.category_scores.items()
+                    for name, cat in score.categories.items()
                 ],
             })
 
@@ -228,6 +228,7 @@ class HTMLReporter:
             "versioning": "Versionamento",
             "security": "Seguranca",
             "pagination": "Paginacao",
+            "error_handling": "Error Handling",
         }
         return names.get(name, name.replace("_", " ").title())
 

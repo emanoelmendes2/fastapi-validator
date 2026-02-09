@@ -1,6 +1,7 @@
 """Regras de validação para APIs RESTful."""
 
 from .documentation import DocumentationRules
+from .error_handling import ErrorHandlingRules
 from .http_methods import HTTPMethodRules
 from .naming import NamingRules
 from .pagination import PaginationRules
@@ -18,4 +19,5 @@ __all__ = [
     "VersioningRules",
     "SecurityRules",
     "PaginationRules",
+    "ErrorHandlingRules",
 ]

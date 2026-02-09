@@ -116,12 +116,13 @@ class APIScorer:
     CATEGORY_WEIGHTS = {
         "naming": 0.10,
         "http": 0.15,
-        "docs": 0.15,
+        "docs": 0.10,
         "status": 0.10,
         "response": 0.10,
         "versioning": 0.10,
-        "security": 0.20,
+        "security": 0.15,
         "pagination": 0.10,
+        "error_handling": 0.10,
     }
 
     SEVERITY_PENALTIES = {
@@ -144,6 +145,8 @@ class APIScorer:
                      "security-deprecated-docs"],
         "pagination": ["pagination-list-endpoints", "pagination-consistency",
                        "pagination-defaults", "pagination-max-limit"],
+        "error_handling": ["error-response-documented", "error-consistent-format",
+                          "error-exception-handlers", "error-http-exception-usage"],
     }
 
     def __init__(

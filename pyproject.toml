@@ -39,6 +39,9 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.0.0",
 ]
+yaml = [
+    "pyyaml>=6.0",
+]
 
 [project.scripts]
 fastapi-validator = "fastapi_validator.cli:main"

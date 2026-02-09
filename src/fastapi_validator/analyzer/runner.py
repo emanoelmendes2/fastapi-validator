@@ -1,9 +1,11 @@
 """Executor principal do analisador de APIs."""
 
+import time
+
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 
-from .base import AnalysisReport, Rule, Severity
+from .base import AnalysisMetrics, AnalysisReport, Rule, Severity
 
 
 class APIAnalyzer:
@@ -46,6 +48,7 @@ class APIAnalyzer:
         """Carrega todas as regras padrão."""
         from .rules import (
             DocumentationRules,
+            ErrorHandlingRules,
             HTTPMethodRules,
             NamingRules,
             PaginationRules,
@@ -65,6 +68,7 @@ class APIAnalyzer:
         rules.extend(VersioningRules.all())
         rules.extend(SecurityRules.all())
         rules.extend(PaginationRules.all())
+        rules.extend(ErrorHandlingRules.all())
 
         return rules
 
@@ -109,6 +113,7 @@ class APIAnalyzer:
         return AnalysisReport(
             issues=filtered_issues,
             analyzed_routes=report.analyzed_routes,
+            metrics=report.metrics,
         )
 
     def analyze(self, app: FastAPI) -> AnalysisReport:
@@ -121,16 +126,60 @@ class APIAnalyzer:
         Returns:
             Relatório com os issues encontrados.
         """
+        start_time = time.perf_counter()
+
         rules = self._get_rules()
         all_issues = []
+        rules_with_issues: set[str] = set()
 
         for rule in rules:
             issues = rule.check(app)
+            if issues:
+                rules_with_issues.add(rule.rule_id)
             all_issues.extend(issues)
+
+        elapsed_ms = (time.perf_counter() - start_time) * 1000
+        routes_analyzed = self._count_api_routes(app)
+
+        # Contagens por severidade
+        issues_by_severity: dict[str, int] = {}
+        for issue in all_issues:
+            sev = str(issue.severity)
+            issues_by_severity[sev] = issues_by_severity.get(sev, 0) + 1
+
+        # Contagens por categoria
+        issues_by_category: dict[str, int] = {}
+        for issue in all_issues:
+            category = issue.rule_id.rsplit("-", 1)[0] if "-" in issue.rule_id else issue.rule_id
+            issues_by_category[category] = issues_by_category.get(category, 0) + 1
+
+        # Coverage: % de categorias sem issues
+        from .scoring import APIScorer
+        all_categories = set(APIScorer.CATEGORY_MAPPING.keys())
+        categories_with_issues = set()
+        for issue in all_issues:
+            for cat, rule_ids in APIScorer.CATEGORY_MAPPING.items():
+                if issue.rule_id in rule_ids:
+                    categories_with_issues.add(cat)
+                    break
+        categories_clean = len(all_categories) - len(categories_with_issues)
+        coverage = (categories_clean / len(all_categories) * 100) if all_categories else 0.0
+
+        metrics = AnalysisMetrics(
+            execution_time_ms=elapsed_ms,
+            rules_executed=len(rules),
+            rules_passed=len(rules) - len(rules_with_issues),
+            rules_with_issues=len(rules_with_issues),
+            routes_analyzed=routes_analyzed,
+            issues_by_severity=issues_by_severity,
+            issues_by_category=issues_by_category,
+            coverage=coverage,
+        )
 
         report = AnalysisReport(
             issues=all_issues,
-            analyzed_routes=self._count_api_routes(app),
+            analyzed_routes=routes_analyzed,
+            metrics=metrics,
         )
 
         return self._filter_by_severity(report)

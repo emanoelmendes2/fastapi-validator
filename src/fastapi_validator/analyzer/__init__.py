@@ -1,6 +1,6 @@
 """Analisador de APIs FastAPI para conformidade RESTful."""
 
-from .base import AnalysisReport, Issue, Rule, Severity
+from .base import AnalysisMetrics, AnalysisReport, Issue, Rule, Severity
 from .runner import APIAnalyzer
 from .scoring import APIScorer, APIScore, Grade, format_score_report
 from .breaking_changes import (
@@ -25,6 +25,7 @@ from .autofix import (
 __all__ = [
     # Core
     "APIAnalyzer",
+    "AnalysisMetrics",
     "AnalysisReport",
     "Issue",
     "Rule",

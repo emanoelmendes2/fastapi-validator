@@ -9,7 +9,7 @@ from typing import NoReturn
 
 from .analyzer import APIAnalyzer, APIScorer, Severity
 from .config import load_config
-from .reports import HTMLReporter, BadgeGenerator, GitHubAnnotationsReporter, JUnitReporter
+from .reports import HTMLReporter, BadgeGenerator, GitHubAnnotationsReporter, JUnitReporter, CSVReporter
 
 
 class Colors:
@@ -82,10 +82,107 @@ def format_issue(issue, show_suggestions: bool = True) -> str:
     return "".join(parts)
 
 
+def _is_spec_file(path: str) -> bool:
+    """Verifica se o argumento é um arquivo de spec OpenAPI."""
+    return path.endswith((".json", ".yaml", ".yml"))
+
+
+def _analyze_spec(args: argparse.Namespace, config) -> int:
+    """Analisa uma spec OpenAPI a partir de arquivo."""
+    from .openapi_analyzer import OpenAPIAnalyzer
+
+    try:
+        spec = OpenAPIAnalyzer.load_spec(args.app)
+    except FileNotFoundError:
+        print(f"{Colors.RED}Erro: Arquivo não encontrado: {args.app}{Colors.RESET}")
+        return 1
+    except Exception as e:
+        print(f"{Colors.RED}Erro ao carregar spec: {e}{Colors.RESET}")
+        return 1
+
+    report = OpenAPIAnalyzer.analyze(spec)
+
+    # Calcula score se necessário
+    score = None
+    if args.format in ("html", "badge") or args.score or config.score:
+        scorer = APIScorer()
+        score = scorer.calculate(report)
+
+    output_path = args.output
+
+    if args.format == "json":
+        data = report.to_dict()
+        if score:
+            data["score"] = score.to_dict()
+        if output_path:
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            print(f"Relatório JSON salvo em: {output_path}")
+        else:
+            print(json.dumps(data, indent=2, ensure_ascii=False))
+
+    elif args.format == "csv":
+        reporter = CSVReporter()
+        if output_path:
+            reporter.save(report, output_path)
+            print(f"Relatório CSV salvo em: {output_path}")
+        else:
+            print(reporter.generate(report))
+
+    elif args.format == "html":
+        reporter = HTMLReporter()
+        if output_path:
+            reporter.save(report, output_path, score, app_title=args.app)
+            print(f"Relatório HTML salvo em: {output_path}")
+        else:
+            print(reporter.generate(report, score, app_title=args.app))
+
+    else:  # text
+        print(f"\n{Colors.BOLD}Análise de OpenAPI Spec{Colors.RESET}")
+        print("=" * 50)
+        print(f"Arquivo: {args.app}")
+        print(f"Rotas analisadas: {report.analyzed_routes}")
+        print(f"Total de issues: {len(report.issues)}")
+        print(
+            f"  {Colors.RED}Erros: {report.error_count}{Colors.RESET} | "
+            f"{Colors.YELLOW}Warnings: {report.warning_count}{Colors.RESET} | "
+            f"{Colors.BLUE}Info: {report.info_count}{Colors.RESET}"
+        )
+
+        if score:
+            print(f"\n{Colors.BOLD}Score: {score.total_score}/100 ({score.grade.value}){Colors.RESET}")
+
+        print("=" * 50)
+
+        if report.issues:
+            print(f"\n{Colors.BOLD}Issues encontrados:{Colors.RESET}\n")
+            for issue in report.issues:
+                print(format_issue(issue, show_suggestions=not args.no_suggestions))
+                print()
+
+    # Exibir métricas se solicitado
+    if hasattr(args, "metrics") and args.metrics and report.metrics:
+        m = report.metrics
+        print(f"\n{Colors.BOLD}{'─' * 50}{Colors.RESET}")
+        print(f"{Colors.BOLD}  Métricas de Análise{Colors.RESET}")
+        print(f"{Colors.BOLD}{'─' * 50}{Colors.RESET}")
+        print(f"  Tempo de execução:  {m.execution_time_ms:.2f}ms")
+        print(f"  Checks executados:  {m.rules_executed}")
+        print(f"  Rotas analisadas:   {m.routes_analyzed}")
+        print(f"  Cobertura:          {m.coverage:.1f}%")
+        print(f"{Colors.BOLD}{'─' * 50}{Colors.RESET}")
+
+    return 1 if report.has_errors else 0
+
+
 def cmd_analyze(args: argparse.Namespace) -> int:
     """Executa o comando analyze."""
     # Carrega configuração do pyproject.toml como defaults
     config = load_config()
+
+    # Detectar se é um arquivo de spec OpenAPI
+    if _is_spec_file(args.app):
+        return _analyze_spec(args, config)
 
     app = load_app(args.app)
 
@@ -154,6 +251,18 @@ def cmd_analyze(args: argparse.Namespace) -> int:
             reporter.save_summary(report, output_path)
             print(f"Summary salvo em: {output_path}")
 
+    elif args.format == "csv":
+        reporter = CSVReporter()
+        if output_path:
+            reporter.save(report, output_path)
+            print(f"Relatório CSV salvo em: {output_path}")
+            if hasattr(args, "metrics") and args.metrics and report.metrics:
+                metrics_path = output_path.replace(".csv", "_metrics.csv") if output_path.endswith(".csv") else output_path + "_metrics.csv"
+                reporter.save_metrics(report, metrics_path)
+                print(f"Métricas CSV salvas em: {metrics_path}")
+        else:
+            print(reporter.generate(report))
+
     elif args.format == "badge":
         if not output_path:
             print(f"{Colors.RED}Erro: --output é obrigatório para badges{Colors.RESET}")
@@ -198,6 +307,24 @@ def cmd_analyze(args: argparse.Namespace) -> int:
             print(f"\n{Colors.YELLOW}API tem {report.warning_count} warning(s).{Colors.RESET}")
         else:
             print(f"\n{Colors.GREEN}API está em conformidade!{Colors.RESET}")
+
+    # Exibir métricas se solicitado
+    if hasattr(args, "metrics") and args.metrics and report.metrics:
+        m = report.metrics
+        print(f"\n{Colors.BOLD}{'─' * 50}{Colors.RESET}")
+        print(f"{Colors.BOLD}  Métricas de Análise{Colors.RESET}")
+        print(f"{Colors.BOLD}{'─' * 50}{Colors.RESET}")
+        print(f"  Tempo de execução:  {m.execution_time_ms:.2f}ms")
+        print(f"  Regras executadas:  {m.rules_executed}")
+        print(f"  Regras OK:          {m.rules_passed}")
+        print(f"  Regras com issues:  {m.rules_with_issues}")
+        print(f"  Rotas analisadas:   {m.routes_analyzed}")
+        print(f"  Cobertura:          {m.coverage:.1f}%")
+        if m.issues_by_severity:
+            print(f"  Por severidade:     {m.issues_by_severity}")
+        if m.issues_by_category:
+            print(f"  Por categoria:      {m.issues_by_category}")
+        print(f"{Colors.BOLD}{'─' * 50}{Colors.RESET}")
 
     return 1 if report.has_errors else 0
 
@@ -247,7 +374,7 @@ def main() -> NoReturn:
     )
     analyze_parser.add_argument(
         "app",
-        help="Aplicação no formato 'module:app'",
+        help="Aplicação no formato 'module:app' ou caminho para spec OpenAPI (.json/.yaml/.yml)",
     )
     analyze_parser.add_argument(
         "-o", "--output",
@@ -255,7 +382,7 @@ def main() -> NoReturn:
     )
     analyze_parser.add_argument(
         "-f", "--format",
-        choices=["text", "json", "html", "junit", "github", "badge"],
+        choices=["text", "json", "html", "junit", "github", "badge", "csv"],
         default="text",
         help="Formato do relatório (default: text)",
     )
@@ -277,6 +404,11 @@ def main() -> NoReturn:
         "--no-suggestions",
         action="store_true",
         help="Não exibir sugestões",
+    )
+    analyze_parser.add_argument(
+        "--metrics",
+        action="store_true",
+        help="Exibir métricas de análise",
     )
 
     subparsers.add_parser(

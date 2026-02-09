@@ -12,8 +12,10 @@ from .decorators import validate_request, validate_response
 from .exceptions import ValidationError, ValidatorException
 from .middleware import ValidationMiddleware
 from .config import ValidatorConfig, load_config
+from .openapi_analyzer import OpenAPIAnalyzer
 from .analyzer import (
     APIAnalyzer,
+    AnalysisMetrics,
     AnalysisReport,
     Issue,
     Rule,
@@ -56,6 +58,7 @@ __all__ = [
     "load_config",
     # Analyzer - Core
     "APIAnalyzer",
+    "AnalysisMetrics",
     "AnalysisReport",
     "Issue",
     "Rule",
@@ -74,4 +77,6 @@ __all__ = [
     "AutoFixer",
     "AutoFixReport",
     "CodeSuggestion",
+    # OpenAPI Analyzer
+    "OpenAPIAnalyzer",
 ]
