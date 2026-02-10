@@ -30,6 +30,7 @@ class ValidatorConfig:
     """
 
     exclude_rules: list[str] = field(default_factory=list)
+    include_rules: list[str] = field(default_factory=list)
     min_severity: str | None = None
     fail_on_warning: bool = False
     score: bool = False
@@ -44,6 +45,7 @@ class ValidatorConfig:
         """Cria configuração a partir de um dicionário."""
         return cls(
             exclude_rules=data.get("exclude-rules", []),
+            include_rules=data.get("include-rules", []),
             min_severity=data.get("min-severity"),
             fail_on_warning=data.get("fail-on-warning", False),
             score=data.get("score", False),

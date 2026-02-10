@@ -29,6 +29,7 @@ class APIAnalyzer:
         self,
         rules: list[Rule] | None = None,
         exclude_rules: list[str] | None = None,
+        include_rules: list[str] | None = None,
         min_severity: Severity | None = None,
     ) -> None:
         """
@@ -37,10 +38,13 @@ class APIAnalyzer:
         Args:
             rules: Lista de regras customizadas. Se None, usa todas as regras padrão.
             exclude_rules: Lista de rule_ids a serem excluídos.
+            include_rules: Lista de rule_ids a serem incluídos (whitelist).
+                Se definido, apenas essas regras serão executadas.
             min_severity: Severidade mínima para incluir no relatório.
         """
         self._custom_rules = rules
         self._exclude_rules = set(exclude_rules or [])
+        self._include_rules = set(include_rules or [])
         self._min_severity = min_severity
         self._rules: list[Rule] = []
 
@@ -78,6 +82,9 @@ class APIAnalyzer:
             rules = self._custom_rules
         else:
             rules = self._load_default_rules()
+
+        if self._include_rules:
+            rules = [r for r in rules if r.rule_id in self._include_rules]
 
         if self._exclude_rules:
             rules = [r for r in rules if r.rule_id not in self._exclude_rules]

@@ -449,8 +449,16 @@ def cmd_analyze(args: argparse.Namespace) -> int:
     else:
         exclude_rules = None
 
+    if args.include:
+        include_rules = args.include.split(",")
+    elif config.include_rules:
+        include_rules = config.include_rules
+    else:
+        include_rules = None
+
     analyzer = APIAnalyzer(
         exclude_rules=exclude_rules,
+        include_rules=include_rules,
         min_severity=min_severity,
     )
     report = analyzer.analyze(app)
@@ -725,6 +733,10 @@ def main() -> NoReturn:
     analyze_parser.add_argument(
         "--exclude",
         help="Regras a excluir (separadas por vírgula)",
+    )
+    analyze_parser.add_argument(
+        "--include",
+        help="Rodar apenas estas regras (separadas por vírgula)",
     )
     analyze_parser.add_argument(
         "--no-suggestions",
