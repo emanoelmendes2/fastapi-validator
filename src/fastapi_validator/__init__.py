@@ -22,6 +22,7 @@ from .analyzer import (
     Rule,
     Severity,
 )
+from .baseline import BaselineComparison
 from .config import ValidatorConfig, load_config
 from .decorators import validate_request, validate_response
 from .exceptions import ValidationError, ValidatorException
@@ -79,4 +80,6 @@ __all__ = [
     "CodeSuggestion",
     # OpenAPI Analyzer
     "OpenAPIAnalyzer",
+    # Baseline
+    "BaselineComparison",
 ]

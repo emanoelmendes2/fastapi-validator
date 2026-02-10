@@ -35,6 +35,7 @@ class ValidatorConfig:
     score: bool = False
     output_format: str = "text"
     output_path: str | None = None
+    fail_under: int | None = None
     category_weights: dict[str, float] = field(default_factory=dict)
     severity_penalties: dict[str, float] = field(default_factory=dict)
 
@@ -48,6 +49,7 @@ class ValidatorConfig:
             score=data.get("score", False),
             output_format=data.get("format", "text"),
             output_path=data.get("output"),
+            fail_under=data.get("fail-under"),
             category_weights=data.get("category-weights", {}),
             severity_penalties=data.get("severity-penalties", {}),
         )

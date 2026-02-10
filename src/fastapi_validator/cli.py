@@ -271,9 +271,20 @@ def _analyze_spec(args: argparse.Namespace, config) -> int:
 
     report = OpenAPIAnalyzer.analyze(spec)
 
+    # Resolve fail_under: CLI arg sobrescreve config
+    fail_under = args.fail_under if args.fail_under is not None else config.fail_under
+
     # Calcula score se necessário
     score = None
-    if args.format in ("html", "badge") or args.score or config.score:
+    needs_score = (
+        args.format in ("html", "badge")
+        or args.score
+        or config.score
+        or fail_under is not None
+        or args.save_baseline
+        or args.baseline
+    )
+    if needs_score:
         scorer = APIScorer()
         score = scorer.calculate(report)
 
@@ -347,7 +358,44 @@ def _analyze_spec(args: argparse.Namespace, config) -> int:
         print(f"  Cobertura:          {m.coverage:.1f}%")
         print(f"{Colors.BOLD}{'─' * 50}{Colors.RESET}")
 
-    return 1 if report.has_errors else 0
+    # --fix não funciona com spec files (precisa do app)
+    if args.fix:
+        print(
+            f"\n{Colors.YELLOW}Aviso: --fix requer uma app FastAPI, "
+            f"não funciona com spec files.{Colors.RESET}"
+        )
+
+    # Baseline: salvar
+    if args.save_baseline:
+        from .baseline import save_baseline
+        save_baseline(report, score, args.save_baseline)
+        print(f"\n{Colors.GREEN}Baseline salvo em: {args.save_baseline}{Colors.RESET}")
+
+    # Baseline: comparar
+    if args.baseline:
+        from .baseline import compare_with_baseline, format_comparison, load_baseline
+        baseline_data = load_baseline(args.baseline)
+        comparison = compare_with_baseline(report, score, baseline_data)
+        print(format_comparison(comparison))
+
+    # Quality Gate
+    exit_code = 1 if report.has_errors else 0
+    if fail_under is not None and score is not None:
+        if score.total_score < fail_under:
+            print(
+                f"\n{Colors.RED}{Colors.BOLD}Quality Gate FALHOU: "
+                f"score {score.total_score:.1f}/100 < limite {fail_under}"
+                f"{Colors.RESET}"
+            )
+            exit_code = 1
+        else:
+            print(
+                f"\n{Colors.GREEN}Quality Gate OK: "
+                f"score {score.total_score:.1f}/100 >= limite {fail_under}"
+                f"{Colors.RESET}"
+            )
+
+    return exit_code
 
 
 def cmd_analyze(args: argparse.Namespace) -> int:
@@ -407,9 +455,20 @@ def cmd_analyze(args: argparse.Namespace) -> int:
     )
     report = analyzer.analyze(app)
 
+    # Resolve fail_under: CLI arg sobrescreve config
+    fail_under = args.fail_under if args.fail_under is not None else config.fail_under
+
     # Calcula score se necessário
     score = None
-    if args.format in ("html", "badge") or args.score or config.score:
+    needs_score = (
+        args.format in ("html", "badge")
+        or args.score
+        or config.score
+        or fail_under is not None
+        or args.save_baseline
+        or args.baseline
+    )
+    if needs_score:
         scorer = APIScorer()
         score = scorer.calculate(report)
 
@@ -419,6 +478,11 @@ def cmd_analyze(args: argparse.Namespace) -> int:
         data = report.to_dict()
         if score:
             data["score"] = score.to_dict()
+        if args.fix and report.issues:
+            from .analyzer.autofix import AutoFixer
+            fixer = AutoFixer()
+            fix_report = fixer.generate_suggestions(app, report.issues)
+            data["suggestions"] = fix_report.to_dict()
         if output_path:
             with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
@@ -545,7 +609,44 @@ def cmd_analyze(args: argparse.Namespace) -> int:
             print(f"  Por categoria:      {m.issues_by_category}")
         print(f"{Colors.BOLD}{'─' * 50}{Colors.RESET}")
 
-    return 1 if report.has_errors else 0
+    # Auto-fix: mostrar sugestões de código
+    if args.fix and report.issues:
+        from .analyzer.autofix import AutoFixer, format_suggestions_report
+        fixer = AutoFixer()
+        fix_report = fixer.generate_suggestions(app, report.issues)
+        print(format_suggestions_report(fix_report))
+
+    # Baseline: salvar
+    if args.save_baseline:
+        from .baseline import save_baseline
+        save_baseline(report, score, args.save_baseline)
+        print(f"\n{Colors.GREEN}Baseline salvo em: {args.save_baseline}{Colors.RESET}")
+
+    # Baseline: comparar
+    if args.baseline:
+        from .baseline import compare_with_baseline, format_comparison, load_baseline
+        baseline_data = load_baseline(args.baseline)
+        comparison = compare_with_baseline(report, score, baseline_data)
+        print(format_comparison(comparison))
+
+    # Quality Gate
+    exit_code = 1 if report.has_errors else 0
+    if fail_under is not None and score is not None:
+        if score.total_score < fail_under:
+            print(
+                f"\n{Colors.RED}{Colors.BOLD}Quality Gate FALHOU: "
+                f"score {score.total_score:.1f}/100 < limite {fail_under}"
+                f"{Colors.RESET}"
+            )
+            exit_code = 1
+        else:
+            print(
+                f"\n{Colors.GREEN}Quality Gate OK: "
+                f"score {score.total_score:.1f}/100 >= limite {fail_under}"
+                f"{Colors.RESET}"
+            )
+
+    return exit_code
 
 
 def cmd_rules(args: argparse.Namespace) -> int:
@@ -634,6 +735,27 @@ def main() -> NoReturn:
         "--metrics",
         action="store_true",
         help="Exibir métricas de análise",
+    )
+    analyze_parser.add_argument(
+        "--fail-under",
+        type=int,
+        metavar="SCORE",
+        help="Falha se score < valor (ex: --fail-under 80)",
+    )
+    analyze_parser.add_argument(
+        "--fix",
+        action="store_true",
+        help="Exibir sugestões de código para correção",
+    )
+    analyze_parser.add_argument(
+        "--save-baseline",
+        metavar="FILE",
+        help="Salvar resultado como baseline JSON",
+    )
+    analyze_parser.add_argument(
+        "--baseline",
+        metavar="FILE",
+        help="Comparar com baseline anterior",
     )
 
     subparsers.add_parser(
