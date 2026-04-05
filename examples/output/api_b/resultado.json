@@ -1,0 +1,1106 @@
+{
+  "summary": {
+    "analyzed_routes": 15,
+    "total_issues": 127,
+    "errors": 1,
+    "warnings": 75,
+    "infos": 51
+  },
+  "issues": [
+    {
+      "rule_id": "naming-kebab-case",
+      "message": "Segmento 'get_produtos' usa underscore. Use kebab-case.",
+      "severity": "warning",
+      "path": "/get_produtos",
+      "suggestion": "Renomear para 'get-produtos'"
+    },
+    {
+      "rule_id": "naming-kebab-case",
+      "message": "Segmento 'search_by_name' usa underscore. Use kebab-case.",
+      "severity": "warning",
+      "path": "/produtos/search_by_name",
+      "suggestion": "Renomear para 'search-by-name'"
+    },
+    {
+      "rule_id": "naming-kebab-case",
+      "message": "Segmento 'get_by_produto' usa underscore. Use kebab-case.",
+      "severity": "warning",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "suggestion": "Renomear para 'get-by-produto'"
+    },
+    {
+      "rule_id": "naming-plural-resources",
+      "message": "Recurso 'token' parece estar no singular.",
+      "severity": "warning",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "suggestion": "Considere usar 'tokens' (plural)"
+    },
+    {
+      "rule_id": "naming-no-verbs",
+      "message": "URL contém o verbo 'get'. Em REST, a ação deve ser indicada pelo método HTTP, não pela URL.",
+      "severity": "warning",
+      "path": "/get_produtos",
+      "suggestion": "O método GET já indica busca/obtenção. Ex: GET /recursos/{id}/arquivo em vez de GET /recursos/download/{id}"
+    },
+    {
+      "rule_id": "naming-no-verbs",
+      "message": "URL contém o verbo 'search'. Em REST, a ação deve ser indicada pelo método HTTP, não pela URL.",
+      "severity": "warning",
+      "path": "/produtos/search_by_name",
+      "suggestion": "O método GET já indica busca/obtenção. Ex: GET /recursos/{id}/arquivo em vez de GET /recursos/download/{id}"
+    },
+    {
+      "rule_id": "naming-no-verbs",
+      "message": "URL contém o verbo 'get'. Em REST, a ação deve ser indicada pelo método HTTP, não pela URL.",
+      "severity": "warning",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "suggestion": "O método GET já indica busca/obtenção. Ex: GET /recursos/{id}/arquivo em vez de GET /recursos/download/{id}"
+    },
+    {
+      "rule_id": "naming-no-trailing-slash",
+      "message": "URL termina com barra.",
+      "severity": "info",
+      "path": "/avaliacoes/",
+      "suggestion": "Remover barra final: '/avaliacoes'"
+    },
+    {
+      "rule_id": "http-post-status",
+      "message": "POST endpoint retorna 200. Para criação, use 201.",
+      "severity": "warning",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar status_code=201 ao decorator"
+    },
+    {
+      "rule_id": "http-post-status",
+      "message": "POST endpoint retorna 200. Para criação, use 201.",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Adicionar status_code=201 ao decorator"
+    },
+    {
+      "rule_id": "http-post-status",
+      "message": "POST endpoint retorna 200. Para criação, use 201.",
+      "severity": "warning",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar status_code=201 ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/get_produtos",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/produtos/search_by_name",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/avaliacoes/",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-summary-required",
+      "message": "Endpoint não tem summary.",
+      "severity": "warning",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro summary= ao decorator"
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/categoria",
+      "method": "GET",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/categoria/{categoria_id}",
+      "method": "GET",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/categoria/{categoria_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-description-required",
+      "message": "Endpoint não tem description.",
+      "severity": "info",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar docstring à função ou parâmetro description="
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/get_produtos",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/produtos/search_by_name",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/avaliacoes/",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-tags-required",
+      "message": "Endpoint não tem tags.",
+      "severity": "info",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro tags=[...] ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/get_produtos",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/produtos/search_by_name",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/categoria",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/categoria/{categoria_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/categoria/{categoria_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/avaliacoes/",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/health",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-operation-id",
+      "message": "Endpoint não tem operation_id explícito.",
+      "severity": "info",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro operation_id= ao decorator"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/get_produtos",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/produtos/search_by_name",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/categoria/{categoria_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/avaliacoes/",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "docs-response-model",
+      "message": "Endpoint não tem response_model.",
+      "severity": "warning",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro response_model= com modelo Pydantic"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/get_produtos",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/produtos/search_by_name",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/categoria/{categoria_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/categoria/{categoria_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/avaliacoes/",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/health",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-responses-defined",
+      "message": "Endpoint não tem responses adicionais documentados.",
+      "severity": "warning",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "method": "GET",
+      "suggestion": "Adicionar parâmetro responses={...} para erros comuns"
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/get_produtos",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [422]",
+      "severity": "info",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404, 422]",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/produtos/search_by_name",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/categoria",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [422]",
+      "severity": "info",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/categoria/{categoria_id}",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/categoria/{categoria_id}",
+      "method": "DELETE",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/avaliacoes/",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [422]",
+      "severity": "info",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/health",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "status-error-codes",
+      "message": "Códigos de erro não documentados: [404]",
+      "severity": "info",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "method": "GET",
+      "suggestion": "Documentar possíveis erros no parâmetro responses="
+    },
+    {
+      "rule_id": "versioning-path",
+      "message": "API não possui versionamento na URL.",
+      "severity": "warning",
+      "suggestion": "Adicionar prefixo de versão (ex: /v1/users, /api/v2/products)"
+    },
+    {
+      "rule_id": "security-auth-required",
+      "message": "Endpoint que modifica dados não tem autenticação.",
+      "severity": "warning",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)"
+    },
+    {
+      "rule_id": "security-auth-required",
+      "message": "Endpoint que modifica dados não tem autenticação.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)"
+    },
+    {
+      "rule_id": "security-auth-required",
+      "message": "Endpoint que modifica dados não tem autenticação.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)"
+    },
+    {
+      "rule_id": "security-auth-required",
+      "message": "Endpoint que modifica dados não tem autenticação.",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)"
+    },
+    {
+      "rule_id": "security-auth-required",
+      "message": "Endpoint que modifica dados não tem autenticação.",
+      "severity": "warning",
+      "path": "/categoria/{categoria_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)"
+    },
+    {
+      "rule_id": "security-auth-required",
+      "message": "Endpoint que modifica dados não tem autenticação.",
+      "severity": "warning",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)"
+    },
+    {
+      "rule_id": "security-sensitive-url",
+      "message": "Parâmetro sensível 'token' está na URL.",
+      "severity": "error",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "suggestion": "Mover dados sensíveis para o body da requisição ou headers"
+    },
+    {
+      "rule_id": "pagination-max-limit",
+      "message": "Parâmetro 'limit' não tem limite máximo.",
+      "severity": "info",
+      "path": "/get_produtos",
+      "suggestion": "Adicionar limite máximo: limit: int = Query(default=10, le=100)"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/get_produtos",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/produtos/search_by_name",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/categoria/{categoria_id}",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/categoria/{categoria_id}",
+      "method": "DELETE",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/avaliacoes/",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/avaliacoes/get_by_produto/{produto_id}",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/health",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-response-documented",
+      "message": "Endpoint não documenta respostas de erro (4xx/5xx).",
+      "severity": "warning",
+      "path": "/usuarios/{user_id}/token/{token}",
+      "method": "GET",
+      "suggestion": "Adicionar responses com códigos 4xx/5xx na definição do endpoint"
+    },
+    {
+      "rule_id": "error-http-exception-usage",
+      "message": "Endpoint não usa HTTPException para tratamento de erros.",
+      "severity": "warning",
+      "path": "/produtos",
+      "method": "POST",
+      "suggestion": "Usar raise HTTPException(status_code=4xx, detail='...') para erros"
+    },
+    {
+      "rule_id": "error-http-exception-usage",
+      "message": "Endpoint não usa HTTPException para tratamento de erros.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "PUT",
+      "suggestion": "Usar raise HTTPException(status_code=4xx, detail='...') para erros"
+    },
+    {
+      "rule_id": "error-http-exception-usage",
+      "message": "Endpoint não usa HTTPException para tratamento de erros.",
+      "severity": "warning",
+      "path": "/produtos/{produto_id}",
+      "method": "DELETE",
+      "suggestion": "Usar raise HTTPException(status_code=4xx, detail='...') para erros"
+    },
+    {
+      "rule_id": "error-http-exception-usage",
+      "message": "Endpoint não usa HTTPException para tratamento de erros.",
+      "severity": "warning",
+      "path": "/categoria",
+      "method": "POST",
+      "suggestion": "Usar raise HTTPException(status_code=4xx, detail='...') para erros"
+    },
+    {
+      "rule_id": "error-http-exception-usage",
+      "message": "Endpoint não usa HTTPException para tratamento de erros.",
+      "severity": "warning",
+      "path": "/categoria/{categoria_id}",
+      "method": "DELETE",
+      "suggestion": "Usar raise HTTPException(status_code=4xx, detail='...') para erros"
+    },
+    {
+      "rule_id": "error-http-exception-usage",
+      "message": "Endpoint não usa HTTPException para tratamento de erros.",
+      "severity": "warning",
+      "path": "/avaliacoes",
+      "method": "POST",
+      "suggestion": "Usar raise HTTPException(status_code=4xx, detail='...') para erros"
+    }
+  ],
+  "metrics": {
+    "execution_time_ms": 7.78,
+    "rules_executed": 33,
+    "rules_passed": 15,
+    "rules_with_issues": 18,
+    "routes_analyzed": 15,
+    "issues_by_severity": {
+      "warning": 75,
+      "info": 51,
+      "error": 1
+    },
+    "issues_by_category": {
+      "naming-kebab": 3,
+      "naming-plural": 1,
+      "naming-no": 3,
+      "naming-no-trailing": 1,
+      "http-post": 3,
+      "docs-summary": 10,
+      "docs-description": 9,
+      "docs-tags": 10,
+      "docs-operation": 15,
+      "docs-response": 12,
+      "status-responses": 15,
+      "status-error": 15,
+      "versioning": 1,
+      "security-auth": 6,
+      "security-sensitive": 1,
+      "pagination-max": 1,
+      "error-response": 15,
+      "error-http-exception": 6
+    },
+    "coverage": 11.11
+  },
+  "score": {
+    "score": 69.5,
+    "grade": "C",
+    "total_routes": 15,
+    "summary": {
+      "total_issues": 127,
+      "errors": 1,
+      "warnings": 75,
+      "infos": 51
+    },
+    "categories": {
+      "naming": {
+        "score": 78.0,
+        "issues": 8,
+        "weight": "10%"
+      },
+      "http": {
+        "score": 91.0,
+        "issues": 3,
+        "weight": "15%"
+      },
+      "docs": {
+        "score": 0.0,
+        "issues": 56,
+        "weight": "10%"
+      },
+      "status": {
+        "score": 40.0,
+        "issues": 30,
+        "weight": "10%"
+      },
+      "response": {
+        "score": 100.0,
+        "issues": 0,
+        "weight": "10%"
+      },
+      "versioning": {
+        "score": 97.0,
+        "issues": 1,
+        "weight": "10%"
+      },
+      "security": {
+        "score": 72.0,
+        "issues": 7,
+        "weight": "15%"
+      },
+      "pagination": {
+        "score": 99.0,
+        "issues": 1,
+        "weight": "10%"
+      },
+      "error_handling": {
+        "score": 37.0,
+        "issues": 21,
+        "weight": "10%"
+      }
+    }
+  }
+}

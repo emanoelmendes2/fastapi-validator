@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastAPI Validator Report - main:app</title>
+    <style>
+/* FastAPI Validator - Report Styles */
+
+:root {
+    --color-primary: #009688;
+    --color-success: #4caf50;
+    --color-warning: #ff9800;
+    --color-error: #f44336;
+    --color-info: #2196f3;
+    --color-bg: #f5f5f5;
+    --color-card: #ffffff;
+    --color-text: #333333;
+    --color-text-secondary: #666666;
+    --color-border: #e0e0e0;
+    --shadow: 0 2px 4px rgba(0,0,0,0.1);
+    --radius: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, var(--color-primary), #00796b);
+    color: white;
+    padding: 2rem;
+    border-radius: var(--radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.header .subtitle {
+    opacity: 0.9;
+    font-size: 1rem;
+}
+
+.header .timestamp {
+    opacity: 0.7;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+}
+
+/* Score Section */
+.score-section {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2rem;
+    background: var(--color-card);
+    padding: 2rem;
+    border-radius: var(--radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.grade-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: bold;
+    color: white;
+}
+
+.grade-a-plus, .grade-a { background: linear-gradient(135deg, #4caf50, #2e7d32); }
+.grade-b { background: linear-gradient(135deg, #8bc34a, #558b2f); }
+.grade-c { background: linear-gradient(135deg, #ff9800, #f57c00); }
+.grade-d { background: linear-gradient(135deg, #ff5722, #e64a19); }
+.grade-f { background: linear-gradient(135deg, #f44336, #c62828); }
+
+.score-details h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.score-bar {
+    height: 24px;
+    background: var(--color-border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.score-bar-fill {
+    height: 100%;
+    border-radius: 12px;
+    transition: width 0.5s ease;
+}
+
+.score-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+/* Summary Cards */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.summary-card {
+    background: var(--color-card);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.summary-card .value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.summary-card .label {
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.summary-card.errors .value { color: var(--color-error); }
+.summary-card.warnings .value { color: var(--color-warning); }
+.summary-card.info .value { color: var(--color-info); }
+.summary-card.routes .value { color: var(--color-primary); }
+
+/* Category Navigation */
+.category-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--color-bg);
+    border-radius: var(--radius);
+}
+
+.category-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--color-card);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.category-nav-item:hover {
+    border-color: var(--color-primary);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.category-nav-name {
+    font-weight: 500;
+    font-size: 0.85rem;
+    flex: 1;
+}
+
+.category-nav-score {
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.category-nav-count {
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    background: var(--color-bg);
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+}
+
+/* Category Groups */
+.category-group {
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.category-group.expanded {
+    margin-bottom: 1rem;
+}
+
+.category-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    background: var(--color-bg);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+
+.category-group-header:hover {
+    background: #eaeaea;
+}
+
+.category-group-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toggle-icon {
+    font-size: 0.7rem;
+    color: var(--color-text-secondary);
+    width: 1rem;
+    text-align: center;
+}
+
+.category-group-header h3 {
+    font-size: 1rem;
+    color: var(--color-text);
+}
+
+.category-group-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.category-group-score {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.mini-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    margin-left: 0.25rem;
+}
+
+.mini-error {
+    background: #ffebee;
+    color: var(--color-error);
+}
+
+.mini-warning {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.mini-info {
+    background: #e3f2fd;
+    color: var(--color-info);
+}
+
+/* Collapsed state */
+.issues-list.collapsed {
+    display: none;
+}
+
+.issues-list {
+    padding: 0.75rem;
+}
+
+/* Issues Section */
+.issues-section {
+    background: var(--color-card);
+    padding: 2rem;
+    border-radius: var(--radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.issues-section h2 {
+    margin-bottom: 1.5rem;
+}
+
+/* Issue Items */
+.issue-item {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    transition: box-shadow 0.2s;
+}
+
+.issue-item:last-child {
+    margin-bottom: 0;
+}
+
+.issue-item:hover {
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.issue-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.severity-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.severity-error {
+    background: #ffebee;
+    color: var(--color-error);
+}
+
+.severity-warning {
+    background: #fff3e0;
+    color: #e65100;
+}
+
+.severity-info {
+    background: #e3f2fd;
+    color: var(--color-info);
+}
+
+.issue-rule {
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.issue-message {
+    margin-bottom: 0.5rem;
+}
+
+.issue-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+}
+
+.issue-meta code {
+    background: var(--color-bg);
+    padding: 0.125rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Consolas', 'Monaco', monospace;
+}
+
+.issue-suggestion {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    background: #e8f5e9;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    color: #2e7d32;
+}
+
+.issue-suggestion::before {
+    content: "Sugestao: ";
+    font-weight: 600;
+}
+
+/* No Issues State */
+.no-issues {
+    text-align: center;
+    padding: 3rem;
+    color: var(--color-text-secondary);
+}
+
+.no-issues .icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+}
+
+.footer a {
+    color: var(--color-primary);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .score-section {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .grade-circle {
+        margin: 0 auto;
+    }
+
+    .category-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .issue-header {
+        flex-wrap: wrap;
+    }
+
+    .issue-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    body {
+        background: white;
+    }
+
+    .container {
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .header {
+        background: var(--color-primary) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .issues-list.collapsed {
+        display: block;
+    }
+
+    .category-nav {
+        display: none;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>FastAPI Validator Report</h1>
+            <p class="subtitle">main:app</p>
+            <p class="timestamp">Gerado em: 01/04/2026 11:03:40</p>
+        </header>
+
+        <!-- Score Section -->
+        
+        <section class="score-section">
+            <div class="grade-circle grade-d">
+                D
+            </div>
+            <div class="score-details">
+                <h2>Quality Score</h2>
+                <div class="score-bar">
+                    <div class="score-bar-fill" style="width: 51.4%; background: #f44336;"></div>
+                </div>
+                <span class="score-value">51.4/100 pontos</span>
+            </div>
+        </section>
+        
+
+        <!-- Summary Cards -->
+        <section class="summary-grid">
+            <div class="summary-card routes">
+                <div class="value">50</div>
+                <div class="label">Rotas Analisadas</div>
+            </div>
+            <div class="summary-card errors">
+                <div class="value">0</div>
+                <div class="label">Erros</div>
+            </div>
+            <div class="summary-card warnings">
+                <div class="value">197</div>
+                <div class="label">Warnings</div>
+            </div>
+            <div class="summary-card info">
+                <div class="value">125</div>
+                <div class="label">Informacoes</div>
+            </div>
+        </section>
+
+        <!-- Issues by Category -->
+        <section class="issues-section">
+            <h2>Issues Encontrados (322)</h2>
+
+            
+            <!-- Category Navigation -->
+            <nav class="category-nav">
+                
+                <a class="category-nav-item" href="#cat-naming">
+                    <span class="category-nav-name">Nomenclatura</span>
+                    <span class="category-nav-score" style="color: #4caf50">Nota: 91/100</span>
+                    <span class="category-nav-count">5</span>
+                </a>
+                
+                <a class="category-nav-item" href="#cat-http">
+                    <span class="category-nav-name">HTTP Methods</span>
+                    <span class="category-nav-score" style="color: #ff5722">Nota: 64/100</span>
+                    <span class="category-nav-count">12</span>
+                </a>
+                
+                <a class="category-nav-item" href="#cat-docs">
+                    <span class="category-nav-name">Documentacao</span>
+                    <span class="category-nav-score" style="color: #f44336">Nota: 0/100</span>
+                    <span class="category-nav-count">111</span>
+                </a>
+                
+                <a class="category-nav-item" href="#cat-status">
+                    <span class="category-nav-name">Status Codes</span>
+                    <span class="category-nav-score" style="color: #f44336">Nota: 0/100</span>
+                    <span class="category-nav-count">100</span>
+                </a>
+                
+                <a class="category-nav-item" href="#cat-response">
+                    <span class="category-nav-name">Response Format</span>
+                    <span class="category-nav-score" style="color: #4caf50">Nota: 94/100</span>
+                    <span class="category-nav-count">6</span>
+                </a>
+                
+                <a class="category-nav-item" href="#cat-versioning">
+                    <span class="category-nav-name">Versionamento</span>
+                    <span class="category-nav-score" style="color: #4caf50">Nota: 97/100</span>
+                    <span class="category-nav-count">1</span>
+                </a>
+                
+                <a class="category-nav-item" href="#cat-security">
+                    <span class="category-nav-name">Seguranca</span>
+                    <span class="category-nav-score" style="color: #f44336">Nota: 34/100</span>
+                    <span class="category-nav-count">22</span>
+                </a>
+                
+                <a class="category-nav-item" href="#cat-pagination">
+                    <span class="category-nav-name">Paginacao</span>
+                    <span class="category-nav-score" style="color: #8bc34a">Nota: 85/100</span>
+                    <span class="category-nav-count">13</span>
+                </a>
+                
+                <a class="category-nav-item" href="#cat-error_handling">
+                    <span class="category-nav-name">Error Handling</span>
+                    <span class="category-nav-score" style="color: #f44336">Nota: 0/100</span>
+                    <span class="category-nav-count">52</span>
+                </a>
+                
+            </nav>
+
+            <!-- Category Groups (collapsed by default) -->
+            
+            <div class="category-group" id="cat-naming">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>Nomenclatura</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #4caf50">Nota: 91/100</span>
+                        <span class="mini-badge mini-warning">2 warnings</span><span class="mini-badge mini-info">3 infos</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">naming-no-verbs</span></div><p class="issue-message">URL contém o verbo 'download'. Em REST, a ação deve ser indicada pelo método HTTP, não pela URL.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/xml/{nota_fiscal_uuid}</code></span></div><div class="issue-suggestion">O método GET já indica busca/obtenção. Ex: GET /recursos/{id}/arquivo em vez de GET /recursos/download/{id}</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">naming-no-verbs</span></div><p class="issue-message">URL contém o verbo 'download'. Em REST, a ação deve ser indicada pelo método HTTP, não pela URL.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/danfe/{nota_fiscal_uuid}</code></span></div><div class="issue-suggestion">O método GET já indica busca/obtenção. Ex: GET /recursos/{id}/arquivo em vez de GET /recursos/download/{id}</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">naming-no-verbs</span></div><p class="issue-message">URL contém o verbo 'activate'. Em REST, a ação deve ser indicada pelo método HTTP, não pela URL.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_uuid}/activate</code></span></div><div class="issue-suggestion">Considere usar PATCH com o estado no body. Ex: PATCH /recursos/{id} com {"active": true} em vez de POST /recursos/{id}/activate</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">naming-no-verbs</span></div><p class="issue-message">URL contém o verbo 'deactivate'. Em REST, a ação deve ser indicada pelo método HTTP, não pela URL.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}/deactivate</code></span></div><div class="issue-suggestion">Considere usar PATCH com o estado no body. Ex: PATCH /recursos/{id} com {"active": true} em vez de POST /recursos/{id}/activate</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">naming-no-trailing-slash</span></div><p class="issue-message">URL termina com barra.</p><div class="issue-meta"><span>Path: <code>/health/</code></span></div><div class="issue-suggestion">Remover barra final: '/health'</div></div>
+                </div>
+            </div>
+            
+            <div class="category-group" id="cat-http">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>HTTP Methods</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #ff5722">Nota: 64/100</span>
+                        <span class="mini-badge mini-warning">12 warnings</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/ativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/desativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/rotate-secret</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_uuid}/activate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}/deactivate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">http-post-status</span></div><p class="issue-message">POST endpoint retorna 200. Para criação, use 201.</p><div class="issue-meta"><span>Path: <code>/tasks/cleanup</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar status_code=201 ao decorator</div></div>
+                </div>
+            </div>
+            
+            <div class="category-group" id="cat-docs">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>Documentacao</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #f44336">Nota: 0/100</span>
+                        <span class="mini-badge mini-warning">57 warnings</span><span class="mini-badge mini-info">54 infos</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/produtores/{cpf_cnpj}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/ativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/desativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}</code></span><span>Method: <code>PUT</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/resumo/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/completas/{produtor_id}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/detalhes/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/xml/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/danfe/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/{documento_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/consulta/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/nao-processados</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/produtor/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/subscription/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/{delivery_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/stats/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/rotate-secret</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_uuid}/activate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}/deactivate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/tasks/executions/recent</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/tasks/executions/{execution_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/tasks/cleanup</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/health/</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-summary-required</span></div><p class="issue-message">Endpoint não tem summary.</p><div class="issue-meta"><span>Path: <code>/health/simple</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro summary= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-description-required</span></div><p class="issue-message">Endpoint não tem description.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar docstring à função ou parâmetro description=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-description-required</span></div><p class="issue-message">Endpoint não tem description.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar docstring à função ou parâmetro description=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-description-required</span></div><p class="issue-message">Endpoint não tem description.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar docstring à função ou parâmetro description=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-description-required</span></div><p class="issue-message">Endpoint não tem description.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar docstring à função ou parâmetro description=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/produtores/{cpf_cnpj}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/ativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/desativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}</code></span><span>Method: <code>PUT</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/resumo/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/completas/{produtor_id}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/detalhes/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/xml/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/danfe/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/{documento_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/consulta/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/nao-processados</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/produtor/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/subscription/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/{delivery_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/stats/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/rotate-secret</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_uuid}/activate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}/deactivate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/tasks/executions/recent</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/tasks/executions/{execution_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/tasks/cleanup</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/health/</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">docs-operation-id</span></div><p class="issue-message">Endpoint não tem operation_id explícito.</p><div class="issue-meta"><span>Path: <code>/health/simple</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro operation_id= ao decorator</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-response-model</span></div><p class="issue-message">Endpoint não tem response_model.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/xml/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro response_model= com modelo Pydantic</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-response-model</span></div><p class="issue-message">Endpoint não tem response_model.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/danfe/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro response_model= com modelo Pydantic</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-response-model</span></div><p class="issue-message">Endpoint não tem response_model.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro response_model= com modelo Pydantic</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-response-model</span></div><p class="issue-message">Endpoint não tem response_model.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro response_model= com modelo Pydantic</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-response-model</span></div><p class="issue-message">Endpoint não tem response_model.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro response_model= com modelo Pydantic</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-response-model</span></div><p class="issue-message">Endpoint não tem response_model.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro response_model= com modelo Pydantic</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">docs-response-model</span></div><p class="issue-message">Endpoint não tem response_model.</p><div class="issue-meta"><span>Path: <code>/health/</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro response_model= com modelo Pydantic</div></div>
+                </div>
+            </div>
+            
+            <div class="category-group" id="cat-status">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>Status Codes</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #f44336">Nota: 0/100</span>
+                        <span class="mini-badge mini-warning">50 warnings</span><span class="mini-badge mini-info">50 infos</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/produtores/{cpf_cnpj}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/ativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/desativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}</code></span><span>Method: <code>PUT</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/resumo/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/completas/{produtor_id}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/detalhes/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/xml/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/danfe/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/{documento_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/consulta/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/nao-processados</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/produtor/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/subscription/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/{delivery_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/stats/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/rotate-secret</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_uuid}/activate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}/deactivate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/tasks/executions/recent</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/tasks/executions/{execution_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/tasks/cleanup</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/health/</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">status-responses-defined</span></div><p class="issue-message">Endpoint não tem responses adicionais documentados.</p><div class="issue-meta"><span>Path: <code>/health/simple</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetro responses={...} para erros comuns</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/produtores/{cpf_cnpj}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/ativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/desativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404, 422]</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}</code></span><span>Method: <code>PUT</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/resumo/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/completas/{produtor_id}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/detalhes/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/xml/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/danfe/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/documento-distribuido</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/{documento_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/consulta/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/nao-processados</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/produtor/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404, 422]</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/subscription/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/{delivery_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/webhooks/stats/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/rotate-secret</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_uuid}/activate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}/deactivate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404, 422]</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/tasks/executions/recent</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/tasks/executions/{execution_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [422]</p><div class="issue-meta"><span>Path: <code>/tasks/cleanup</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/health/</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">status-error-codes</span></div><p class="issue-message">Códigos de erro não documentados: [404]</p><div class="issue-meta"><span>Path: <code>/health/simple</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Documentar possíveis erros no parâmetro responses=</div></div>
+                </div>
+            </div>
+            
+            <div class="category-group" id="cat-response">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>Response Format</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #4caf50">Nota: 94/100</span>
+                        <span class="mini-badge mini-info">6 infos</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">response-pydantic-model</span></div><p class="issue-message">Response model não é um tipo válido.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Usar um modelo Pydantic como response_model</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">response-pydantic-model</span></div><p class="issue-message">Response model não é um tipo válido.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/consulta/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Usar um modelo Pydantic como response_model</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">response-pydantic-model</span></div><p class="issue-message">Response model não é um tipo válido.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/nao-processados</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Usar um modelo Pydantic como response_model</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">response-pydantic-model</span></div><p class="issue-message">Response model não é um tipo válido.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/produtor/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Usar um modelo Pydantic como response_model</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">response-pydantic-model</span></div><p class="issue-message">Response model não é um tipo válido.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Usar um modelo Pydantic como response_model</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">response-pydantic-model</span></div><p class="issue-message">Response model não é um tipo válido.</p><div class="issue-meta"><span>Path: <code>/health/simple</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Usar um modelo Pydantic como response_model</div></div>
+                </div>
+            </div>
+            
+            <div class="category-group" id="cat-versioning">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>Versionamento</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #4caf50">Nota: 97/100</span>
+                        <span class="mini-badge mini-warning">1 warning</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">versioning-path</span></div><p class="issue-message">API não possui versionamento na URL.</p><div class="issue-meta"></div><div class="issue-suggestion">Adicionar prefixo de versão (ex: /v1/users, /api/v2/products)</div></div>
+                </div>
+            </div>
+            
+            <div class="category-group" id="cat-security">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>Seguranca</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #f44336">Nota: 34/100</span>
+                        <span class="mini-badge mini-warning">22 warnings</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/ativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/desativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}</code></span><span>Method: <code>PUT</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/rotate-secret</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_uuid}/activate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}/deactivate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">security-auth-required</span></div><p class="issue-message">Endpoint que modifica dados não tem autenticação.</p><div class="issue-meta"><span>Path: <code>/tasks/cleanup</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar dependência de autenticação (HTTPBearer, OAuth2, etc.)</div></div>
+                </div>
+            </div>
+            
+            <div class="category-group" id="cat-pagination">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>Paginacao</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #8bc34a">Nota: 85/100</span>
+                        <span class="mini-badge mini-warning">1 warning</span><span class="mini-badge mini-info">12 infos</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">pagination-list-endpoints</span></div><p class="issue-message">Endpoint que retorna lista não tem parâmetros de paginação.</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar parâmetros: page, limit (ou offset, skip)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/resumo/{produtor_uuid}</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/completas/{produtor_id}</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/chave/{chave_nfe}</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/consulta/{consulta_uuid}</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/nao-processados</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/subscription/{webhook_uuid}</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+<div class="issue-item" data-severity="info"><div class="issue-header"><span class="severity-badge severity-info">info</span><span class="issue-rule">pagination-max-limit</span></div><p class="issue-message">Parâmetro 'limit' não tem limite máximo.</p><div class="issue-meta"><span>Path: <code>/tasks/executions/recent</code></span></div><div class="issue-suggestion">Adicionar limite máximo: limit: int = Query(default=10, le=100)</div></div>
+                </div>
+            </div>
+            
+            <div class="category-group" id="cat-error_handling">
+                <div class="category-group-header" onclick="toggleGroup(this)">
+                    <div class="category-group-title">
+                        <span class="toggle-icon">&#9654;</span>
+                        <h3>Error Handling</h3>
+                    </div>
+                    <div class="category-group-meta">
+                        <span class="category-group-score" style="color: #f44336">Nota: 0/100</span>
+                        <span class="mini-badge mini-warning">52 warnings</span>
+                    </div>
+                </div>
+                <div class="issues-list collapsed">
+                    <div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/produtores/{cpf_cnpj}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/ativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}/desativar</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/produtores/{uuid}</code></span><span>Method: <code>PUT</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/resumo/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/completas/{produtor_id}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/detalhes/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/xml/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/notas-fiscais/download/danfe/{nota_fiscal_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/dist-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-nsu</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/cons-ch-nfe</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/mde</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/consulta-distribuicao/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/documento-distribuido</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/{documento_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/chave/{chave_nfe}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/consulta/{consulta_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/documento-distribuido/nao-processados</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/produtor/{produtor_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/subscription/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/deliveries/{delivery_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/stats/{webhook_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/webhooks/subscriptions/{webhook_uuid}/rotate-secret</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/api-keys</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_uuid}/activate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}/deactivate</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/api-keys/{key_id}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/clientes</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>PATCH</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}</code></span><span>Method: <code>DELETE</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/admin/clientes/{cliente_uuid}/toggle</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/tasks/executions/recent</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/tasks/executions/{execution_uuid}</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/tasks/cleanup</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/health/</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-response-documented</span></div><p class="issue-message">Endpoint não documenta respostas de erro (4xx/5xx).</p><div class="issue-meta"><span>Path: <code>/health/simple</code></span><span>Method: <code>GET</code></span></div><div class="issue-suggestion">Adicionar responses com códigos 4xx/5xx na definição do endpoint</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-http-exception-usage</span></div><p class="issue-message">Endpoint não usa HTTPException para tratamento de erros.</p><div class="issue-meta"><span>Path: <code>/produtores</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Usar raise HTTPException(status_code=4xx, detail='...') para erros</div></div>
+<div class="issue-item" data-severity="warning"><div class="issue-header"><span class="severity-badge severity-warning">warning</span><span class="issue-rule">error-http-exception-usage</span></div><p class="issue-message">Endpoint não usa HTTPException para tratamento de erros.</p><div class="issue-meta"><span>Path: <code>/tasks/cleanup</code></span><span>Method: <code>POST</code></span></div><div class="issue-suggestion">Usar raise HTTPException(status_code=4xx, detail='...') para erros</div></div>
+                </div>
+            </div>
+            
+
+            
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Gerado por FastAPI Validator</p>
+            <p>Versao 0.1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        function toggleGroup(header) {
+            const list = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            const isCollapsed = list.classList.contains('collapsed');
+
+            if (isCollapsed) {
+                list.classList.remove('collapsed');
+                icon.innerHTML = '&#9660;';
+                header.parentElement.classList.add('expanded');
+            } else {
+                list.classList.add('collapsed');
+                icon.innerHTML = '&#9654;';
+                header.parentElement.classList.remove('expanded');
+            }
+        }
+
+        // Expand group when clicking nav link
+        document.querySelectorAll('.category-nav-item').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const group = document.getElementById(targetId);
+                if (group) {
+                    const list = group.querySelector('.issues-list');
+                    const icon = group.querySelector('.toggle-icon');
+                    list.classList.remove('collapsed');
+                    icon.innerHTML = '&#9660;';
+                    group.classList.add('expanded');
+                    group.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Expand All / Collapse All
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'e' && e.altKey) {
+                document.querySelectorAll('.issues-list').forEach(el => {
+                    el.classList.remove('collapsed');
+                });
+                document.querySelectorAll('.toggle-icon').forEach(el => {
+                    el.innerHTML = '&#9660;';
+                });
+            }
+            if (e.key === 'c' && e.altKey) {
+                document.querySelectorAll('.issues-list').forEach(el => {
+                    el.classList.add('collapsed');
+                });
+                document.querySelectorAll('.toggle-icon').forEach(el => {
+                    el.innerHTML = '&#9654;';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

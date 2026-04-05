@@ -1,0 +1,58 @@
+graph TB
+    %% LINHA 1 — Entrada + APIs + Modos de Análise
+    CONFIG["Configuração\npyproject.toml"] --> CLI["CLI\nfastapi-validator"]
+    APP["Aplicação FastAPI\nmain:app"] --> ANALYZER["APIAnalyzer\nModo Direto"]
+    SPEC["Spec OpenAPI\nJSON / YAML"] --> OPENAPI["OpenAPIAnalyzer\nModo Standalone"]
+    CLI --> ANALYZER
+    CLI --> OPENAPI
+
+    %% LINHA 2 — Regras em duas linhas
+    ANALYZER --> REGRAS
+    OPENAPI --> REGRAS
+
+    subgraph REGRAS["33 Regras — 9 Categorias"]
+        direction TB
+        subgraph ROW1[" "]
+            direction LR
+            R1["Nomenclatura\n5 regras"] ~~~ R2["HTTP\n4 regras"] ~~~ R3["Documentação\n5 regras"] ~~~ R4["Status Codes\n3 regras"] ~~~ R5["Response\n2 regras"]
+        end
+        subgraph ROW2[" "]
+            direction LR
+            R6["Versionamento\n2 regras"] ~~~ R7["Segurança\n4 regras"] ~~~ R8["Paginação\n4 regras"] ~~~ R9["Erros\n4 regras"]
+        end
+        ROW1 ~~~ ROW2
+    end
+
+    %% LINHA 3 — Processamento
+    REGRAS --> PROCESSAMENTO
+
+    subgraph PROCESSAMENTO["Processamento"]
+        direction LR
+        SCORER["APIScorer\nScore 0-100 + Grade"] ~~~ AUTOFIX["AutoFixer\nSugestões de Código"] ~~~ BASELINE["Baseline\nComparação Evolutiva"]
+    end
+
+    %% LINHA 4 — Saída em linha horizontal
+    PROCESSAMENTO --> SAIDA
+
+    subgraph SAIDA["7 Formatos de Saída"]
+        direction LR
+        S1["Terminal"] ~~~ S2["JSON"] ~~~ S3["HTML"] ~~~ S4["CSV"] ~~~ S5["JUnit XML"] ~~~ S6["GitHub"] ~~~ S7["Badges SVG"]
+    end
+
+    %% Estilos
+    classDef alvo fill:#E8E8E8,stroke:#999,color:#333,stroke-width:2px
+    classDef entrada fill:#4A90D9,stroke:#2C5F8A,color:#fff,stroke-width:2px
+    classDef analise fill:#F5A623,stroke:#C17D15,color:#fff,stroke-width:2px
+    classDef regra fill:#FFF3D6,stroke:#C17D15,color:#333,stroke-width:1px
+    classDef proc fill:#7B68EE,stroke:#5A4DB0,color:#fff,stroke-width:2px
+    classDef saida fill:#50C878,stroke:#2E8B57,color:#fff,stroke-width:2px
+
+    class APP,SPEC alvo
+    class CLI,CONFIG entrada
+    class ANALYZER,OPENAPI analise
+    class R1,R2,R3,R4,R5,R6,R7,R8,R9 regra
+    class SCORER,AUTOFIX,BASELINE proc
+    class S1,S2,S3,S4,S5,S6,S7 saida
+
+    style ROW1 fill:none,stroke:none
+    style ROW2 fill:none,stroke:none
